@@ -39,6 +39,8 @@ venv/
 *.gguf
 *.ggml
 *.ckpt
+# need to block out this folder to also handle tokenizers+configs from downloaded models
+ai/models 
 
 # experiment tracking / run outputs 
 wandb/
@@ -51,6 +53,8 @@ data/
 *.wav
 *.mp3
 *.m4a
+# mp4 can be processed just like mp3, meaning you can use mp4s for testing without having to convert them to mp3 for conveinance; This neccessiates adding mp4 to the gitignore
+*.mp4
 *.flac
 
 # node
