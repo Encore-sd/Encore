@@ -1,5 +1,72 @@
+logs/
+
+# os & editors
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+Session.vim
+
+# secrets
 .env
+*.pem
+*.key
+*.p8
+*.p12
+*.jks
+*.keystore
+*.mobileprovision
 
+# python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# model weights & local run times
+*.pt
+*.pth
+*.bin
+*.safetensors
+*.onnx
+*.gguf
+*.ggml
+*.ckpt
+
+# experiment tracking / run outputs 
+wandb/
+mlruns/
+outputs/
+runs/
+
+# data
+data/
+*.wav
+*.mp3
+*.m4a
+*.flac
+
+# node
 node_modules/
+dist/
+build/
+coverage/
+*.log
+npm-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
 
-logs
+# react native 
+.expo/
+web-build/
+expo-env.d.ts
+.metro-health-check*
+app/ios/
+app/android/
