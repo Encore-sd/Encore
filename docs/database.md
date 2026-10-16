@@ -1,6 +1,6 @@
-### Project Specific Database Information  
+## Project Specific Database Information  
 
-## users  
+### users  
 - collumns  
 	- userid SERIAL	:	primary_Key  
 	- firstname VARCHAR(100)  
@@ -10,7 +10,7 @@
 	- token VARCHAR(255)  
 	- tokenexpiredate TIMESTAMP  
 
-## memories
+### memories
 - collumns  
 	- memoryid SERIAL	:	PRIMARY KEY  
 	- userid INT NOT NULL	:	foreign_key  
@@ -23,7 +23,7 @@
 	- timecaptured TIMESTAMP  
 
 
-### General Database Information
+## General Database Information
 
 The database uses postgreSQL
 
@@ -37,7 +37,7 @@ Once you have entered the database (see docker.md) the following commands will b
 - `\d` : See all the tables in a database. (equivilant mysql: SHOW TABLES)  
 - `\d table_name` : show all the column names in a table. (equivilant mysql: DESCRIBE table_name)  
 
-## Creating a new table  
+### Creating a new table  
 - You can mosty use mysql commands, but instead of AUTO_INCREMENT use: SERIAL  
 - Creating a table example:  
 	CREATE TABLE users (  
@@ -47,27 +47,27 @@ Once you have entered the database (see docker.md) the following commands will b
 	    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP  
 	);  
 
-## Adding indexes to a table  
+### Adding indexes to a table  
 - Create an index on a signle column by onlypassing that column name. Or, create a composite index by passing multiple column names.  
-	a. `CREATE INDEX index_name ON table_name ([column1_name, column2_name, . . .])`  
+	- `CREATE INDEX index_name ON table_name ([column1_name, column2_name, . . .])`  
 
-## Delete a table  
+### Delete a table  
 - DROP TABLE table_name  
 
-## Adding a column to an existing table  
+### Adding a column to an existing table  
 - ALTER TABLE table_name ADD COLUMN column_name data_type constraints;  
 - datatypes  
-	a. VARCHAR(size)	:	A String of some max size  
-	b. BOOLEAN	:	A true/false value  
-	c. INT	:	An integer number  
+	- VARCHAR(size)	:	A String of some max size  
+	- BOOLEAN	:	A true/false value  
+	- INT	:	An integer number  
 
-## Deleting a column  
+### Deleting a column  
 - ALTER TABLE table_name DROP COLUMN column_name;  
 
-## Running a sql file to seed or otherwise alter the database  
+### Running a sql file to seed or otherwise alter the database  
 - From the terminal run: `docker compose exec -T postgres_db psql -U encore_db_user -d senior encore_db < [path to sql file]`  
 
-## Common sql commands
+### Common sql commands
 - Insert a row	:	`INSERT INTO table_name ([column_names . . .]) VALUES ([values . . .]);`  
 - sql search	:	`SELECT [column names * for all] FROM table_name WHERE [some condition: column name = value];`  
 - count the number of results	: `SELECT COUNT(*) FROM users;`  
