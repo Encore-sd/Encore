@@ -60,6 +60,8 @@ Once you have entered the database (see docker.md) the following commands will b
 	- VARCHAR(size)	:	A String of some max size  
 	- BOOLEAN	:	A true/false value  
 	- INT	:	An integer number  
+	- DATE	:	A date
+	- TIMESTAMP	:	A date and time
 
 ### Deleting a column  
 - ALTER TABLE table_name DROP COLUMN column_name;  
