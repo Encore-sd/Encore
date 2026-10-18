@@ -18,14 +18,14 @@ const pool = new Pool({
 
 // Basic health check route
 app.get('/', (req, res) => {
-  res.send('Senior Design Backend is running!');
+  res.status(200).send('Encore Backend is running!');
 });
 
 // Database connection test route
 app.get('/db-health', async (req, res) => {
   try {
     const result = await pool.query('SELECT NOW()');
-    res.json({ success: true, time: result.rows[0].now });
+    res.status(200).json({ success: true, time: result.rows[0].now });
   } catch (err) {
     console.error('Database connection error:', err);
     res.status(500).json({ success: false, error: err.message });

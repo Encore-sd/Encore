@@ -4,9 +4,10 @@
 - If you have installed new dependencies or made changes to the Dockerfile you want to build the container from scratch. Run: `docker compose up --build`  
 - If you want to run the container in the background so it doesn't busy the terminal run: `docker compose up -d`  
 	- if you run it this way you can view the logs by running: `docker logs -f`  
-- Check if the containers are running run: `docker ps` You should see two containers running:  
+- Check if the containers are running run: `docker ps` You should see three containers running:  
 	- `encore_postgres` for the database  
 	- `encore_backend` for the backend server  
+	- `encore_frontend` for the frontend server  
 
 ## Stopping the container  
 - To stop the container without clearnign any volumnes run: `docker compose down`  
