@@ -2,6 +2,7 @@ const express = require('express');
 const { Pool } = require('pg');
 
 const app = express();
+const sqlitedb = require('./db/init-sqlite');
 const PORT = process.env.PORT || 5000;
 
 // Middleware to parse JSON bodies
@@ -31,6 +32,26 @@ app.get('/db-health', async (req, res) => {
     res.status(500).json({ success: false, error: err.message });
   }
 });
+
+// local Database sqlite connection test route
+app.get('/sqlite-health', async (req, res) => {
+  try {
+    // Run a quick query to fetch table names from SQLite metadata
+    const tables = sqlitedb.prepare("SELECT name FROM sqlite_master WHERE type='table';").all();
+    
+    res.status(200).json({
+      status: 'healthy',
+      database: 'SQLite (Local)',
+      tablesFound: tables.map(t => t.name)
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'unhealthy',
+      error: error.message
+    });
+  }
+});
+
 
 app.listen(PORT, () => {
   console.log(`Server is listening on port ${PORT}`);

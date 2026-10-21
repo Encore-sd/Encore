@@ -1,5 +1,7 @@
 logs/
 
+sqlite-data/
+
 # os & editors
 .DS_Store
 .vscode/
