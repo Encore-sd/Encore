@@ -1,7 +1,7 @@
 [project]
 name = "ai"
 version = "0.1.0"
-requires-python = ">=3.9"
+requires-python = ">=3.12"
 dependencies = [
     "faster-whisper>=1.2.1",
     "silero-vad>=6.2.3",
@@ -16,3 +16,6 @@ dev = [
     "pytest>=8.4.2",
     "ruff>=0.17.0",
 ]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
