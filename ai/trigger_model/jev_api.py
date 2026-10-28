@@ -1,8 +1,18 @@
-from typesafe_sdk import Noul, NoulCriteria, TypeSafeClient #jev API imports: use Noul for 0-1 if a moment is memorable or not
+#   jev_api.py: cheap first pass trigger, sends one transcript chunk to the model (Jev)
+# returns {"keep": bool, "confidence": float 0-1, "reason": str | None}, placeholder shape until SCRUM-48 sets the shared schema
+# requires TYPESAFE_API_KEY in ai/.env, run with: uv run --env-file .env ...
+# timeouts, rate limits and API errors are raised as TypeSafe exceptions, not caught here, so the fallback can handle them
+#
+#   known limitation: background media (TV ads, radio) can't be told apart from real speech using text alone, 
+#   so it passes on to the expensive classifierfrom typesafe_sdk import Choice, Noul, NoulCriteria,
+#   TypeSafeClient #jev API imports: use Noul for 0-1 if a moment is memorable or not, Choice for the reason
 
+KEEP_THRESHOLD = 0.35 # low cutoff on purpose, only drop the definite no's, can be finetuned down the line
 
 
 #function to call Jev API and handle if a moment is memorable or not.
+#returns keep/discard decision, confidence and reason, placeholder shape until the shared output schema (SCRUM-48) is set
+
 def is_memorable_transcription(transcription):
     with TypeSafeClient() as client:
         response = client.system_one(
@@ -16,36 +26,25 @@ def is_memorable_transcription(transcription):
                         false= "The transcript contains only small talk, greetings, filler, background TV or music, or unclear fragments with nothing specific to recall.",
                     ),
                 ),
+                "reason": Choice( #which kind of memorable info it is, only read when the Noul says keep
+                    instructions= "The kind of information in the transcript the speaker or listener may want to recall later.",
+                    criteria= { #structured options so neighbouring labels don't blur together
+                        "event_or_deadline": {"covers": "appointments, exams, due dates, scheduled times", "excludes": "tasks with no set time"},
+                        "task_or_commitment": {"covers": "something someone has to do or promised to do", "excludes": "general directions on how to do something"},
+                        "instruction": {"covers": "directions, steps, rules or how to do something", "excludes": "a specific task assigned to someone"},
+                        "object_location": {"covers": "where an object was put or can be found", "excludes": "where an event takes place"},
+                        "fact_or_detail": {"covers": "names, numbers, decisions or other specific facts", "excludes": "dates and times of events"},
+                        "flagged_important": {"covers": "someone explicitly says this matters, e.g. 'this will be on the exam'", "excludes": "anything not called out as important"},
+                    },
+                ),
             },
         )
-        return response.answers["is_memorable"].noul
+    confidence = response.answers["is_memorable"].noul # grabs probability value
+    keep = confidence >= KEEP_THRESHOLD 
+    return {
+        "keep": keep,
+        "confidence": confidence,
+        "reason": response.answers["reason"].choice if keep else None,
+    }
 
-
-
-def main():
-    edge_prbo_true = is_memorable_transcription("yeah no the game last night was insane, I can't believe they blew that lead in the fourth. oh hey before I forget, the spare key's under the blue planter by the back door, the landlord's coming at nine tomorrow so let him in. anyway did you see that last play, I was yelling at the TV")
-    edge_prob_false = is_memorable_transcription("call now, this offer ends Friday at midnight. that's one eight hundred five five five zero one nine nine. don't miss your chance, the first fifty callers get a free upgrade, remember the deadline is Friday at midnight, call one eight hundred five five five zero one nine nine")
-    
-    def_prob_true = is_memorable_transcription("okay everyone, quick reminder before you go, the midterm is next Thursday the fourteenth at two pm in room 210, it covers chapters three through six, and you're allowed one handwritten page of notes, front and back")
-    def_prob_false = is_memorable_transcription("hey how's it going, yeah good good, just tired honestly, it's been a long day, yeah same, cool cool, alright see you later")
-
-    print(f"Edge True Value:{edge_prbo_true}\nEdge False Value:{edge_prob_false}")
-    print(f"Definite True Value:{def_prob_true}\nDefinite False Value:{def_prob_false}")
-
-    #note about the output (jev-latest, 2026-10-27): 
-    #
-    # Edge True Value:0.98
-    # Edge False Value:0.98
-    # Definite True Value:0.98
-    # Definite False Value:0.05
-    #
-    # edge true: key info buried in small talk, caught as intended
-    # edge false: TV ad, text alone can't show its background media, passes on to the expensive classifier (intended)
-    # definite true: clear exam reminder, passes the 0.35 cutoff
-    # definite false: small talk only, dropped at the 0.35 cutoff
-    # all yes cases saturate at 0.98, so this score works as a keep/drop gate, not as an importance ranking
-
-
-
-if __name__ == "__main__":
-    main()
+# TODO: update placeholder shape when shema is set
