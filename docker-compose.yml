@@ -1,23 +1,39 @@
 services:
-  backend:
-    build: ./backend
-    container_name: encore_backend
+  backend-local:
+    build: ./backend-local
+    container_name: encore_backend_local
     restart: always
     ports:
-      - "${BACKEND_PORT:-5000}:${BACKEND_PORT:-5000}" # Maps the port on your machine to the port in the container
+      - "${LOCAL_BACKEND_PORT:-5000}:${LOCAL_BACKEND_PORT:-5000}" # Maps the port on your machine to the port in the container
     environment:
       - NODE_ENV=development
-      - PORT=${APP_PORT:-5000}
+      - PORT=${LOCAL_BACKEND_PORT:-5000}
+      - REMOTE_BACKEND_URL=http://backend-remote:${REMOTE_BACKEND_PORT:-5001}
+      - SQLITE_PATH=/app/sqlite-data/local.db
+    volumes:
+      - ./backend-local:/app
+      - /app/node_modules
+      - ./sqlite-data:/app/sqlite-data
+    networks:
+      - app-network
+
+  backend-remote:
+    build: ./backend-remote
+    container_name: encore_backend_remote
+    restart: always
+    ports:
+      - "${REMOTE_BACKEND_PORT:-5001}:${REMOTE_BACKEND_PORT:-5001}" # Maps the port on your machine to the port in the container
+    environment:
+      - NODE_ENV=development
+      - PORT=${REMOTE_BACKEND_PORT:-5001}
       - DB_HOST=postgres_db
       - DB_USER=${POSTGRES_USER}
       - DB_PASSWORD=${POSTGRES_PASSWORD}
       - DB_NAME=${POSTGRES_DB}
       - DB_PORT=${DB_PORT:-5432}
-      - SQLITE_PATH=/app/sqlite-data/local.db
     volumes:
-      - ./backend:/app
+      - ./backend-remote:/app
       - /app/node_modules
-      - ./sqlite-data:/app/sqlite-data
     depends_on:
       - postgres_db
     networks:
