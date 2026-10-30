@@ -6,8 +6,7 @@
 #   known limitation: background media (TV ads, radio) can't be told apart from real speech using text alone, 
 #   so it passes on to the expensive classifier
     
-from typesafe_sdk import Choice, Noul, NoulCriteria,
-#   TypeSafeClient #jev API imports: use Noul for 0-1 if a moment is memorable or not, Choice for the reason
+from typesafe_sdk import Choice, Noul, NoulCriteria, TypeSafeClient #jev API imports: use Noul for 0-1 if a moment is memorable or not, Choice for the reason
 
 KEEP_THRESHOLD = 0.35 # low cutoff on purpose, only drop the definite no's, can be finetuned down the line
 
