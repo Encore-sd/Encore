@@ -1,10 +1,12 @@
 #   jev_api.py: cheap first pass trigger, sends one transcript chunk to the model (Jev)
-# returns {"keep": bool, "confidence": float 0-1, "reason": str | None}, placeholder shape until SCRUM-48 sets the shared schema
-# requires TYPESAFE_API_KEY in ai/.env, run with: uv run --env-file .env ...
-# timeouts, rate limits and API errors are raised as TypeSafe exceptions, not caught here, so the fallback can handle them
+#   returns {"keep": bool, "confidence": float 0-1, "reason": str | None}, placeholder shape until SCRUM-48 sets the shared schema
+#   requires TYPESAFE_API_KEY in ai/.env, run with: uv run --env-file .env ...
+#   timeouts, rate limits and API errors are raised as TypeSafe exceptions, not caught here, so the fallback can handle them
 #
 #   known limitation: background media (TV ads, radio) can't be told apart from real speech using text alone, 
-#   so it passes on to the expensive classifierfrom typesafe_sdk import Choice, Noul, NoulCriteria,
+#   so it passes on to the expensive classifier
+    
+from typesafe_sdk import Choice, Noul, NoulCriteria,
 #   TypeSafeClient #jev API imports: use Noul for 0-1 if a moment is memorable or not, Choice for the reason
 
 KEEP_THRESHOLD = 0.35 # low cutoff on purpose, only drop the definite no's, can be finetuned down the line
