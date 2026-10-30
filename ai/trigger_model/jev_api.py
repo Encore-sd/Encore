@@ -43,6 +43,7 @@ def is_memorable_transcription(transcription):
     confidence = response.answers["is_memorable"].noul # grabs probability value
     keep = confidence >= KEEP_THRESHOLD 
     return {
+        "transcription_chunk": transcription,
         "keep": keep,
         "confidence": confidence,
         "reason": response.answers["reason"].choice if keep else None,
