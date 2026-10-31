@@ -1,7 +1,6 @@
 import importlib.util
 from pathlib import Path
 import os
-import subprocess
 import numpy as np
 import random
 
@@ -16,20 +15,6 @@ module_spec = importlib.util.spec_from_file_location('os_utilities', utilities_p
 os_utilities = importlib.util.module_from_spec(module_spec)
 module_spec.loader.exec_module(os_utilities)
 
-
-# convert_to_bytes was made by Gemma4 31B --> script to convert audio files directly into a list of bytes to mimic being sent a stream of bytes from the device; We may need an intermediary to preprocess said stream of bytes into an np.ndarry of np.float32 and make sure that if the device doesn't sample at 16K bytes/second, that they are resampled, as that is what transcription expects.
-def convert_to_bytes(file):
-    command = ['ffmpeg', '-i', file, '-ac', '1', '-ar', '16000', '-f', 'f32le', '-acodec', 'pcm_f32le', '-']
-    
-    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-    stdout_data, stderr_data = process.communicate()
-    
-    if process.returncode != 0:
-        raise RuntimeError(f"FFmpeg error: {stderr_data.decode()}")
-
-    return np.frombuffer(stdout_data, dtype=np.float32)
-
 def main():
     temp_files = os_utilities.gather_files_from_directory(test_path / 'fixtures')
     audio_files = [file for file in temp_files if file.split('.')[-1] in ['mp4', 'mp3', 'wav']]
@@ -40,14 +25,25 @@ def main():
     
     # Single Transcription
     print('Just one set of Bytes')
-    print(transcriber.transcribe(convert_to_bytes(audio_files[0]), already_loaded_processor=preloaded_processor, already_loaded_model=preloaded_model))
+    print(transcriber.transcribe(transcriber.convert_to_bytes(audio_files[0]), already_loaded_processor=preloaded_processor, already_loaded_model=preloaded_model))
+    print('------------------------------------------------------------------------')
+    
+    # Single-File Transcription
+    print('Transcribe a single file')
+    print(transcriber.transcribe_audio_files(audio_files[0], already_loaded_processor=preloaded_processor, already_loaded_model=preloaded_model))
     print('------------------------------------------------------------------------')
     
     # Batched Transcription
     print('Batched Transcription with capture_time + user_id per chunk')
     # the random.randint(1, 100) is setting a random capture time; random.randint(10000, 99999) is setting a random user id
-    byte_arr = [[convert_to_bytes(file), random.randint(1, 100), random.randint(10000, 99999)] for file in audio_files]
+    byte_arr = [[transcriber.convert_to_bytes(file), float(random.randint(1, 100))/10.0, random.randint(10000, 99999)] for file in audio_files]
     print(transcriber.transcribe(byte_arr, already_loaded_processor=preloaded_processor, already_loaded_model=preloaded_model))
+    
+    # Transcribe many files
+    print('Transcribe many files')
+    print(transcriber.transcribe_audio_files([[file, float(random.randint(1, 100))/10.0, random.randint(10000, 99999)] for file in audio_files], already_loaded_processor=preloaded_processor, already_loaded_model=preloaded_model))
+    print('------------------------------------------------------------------------')
+    
     
 if __name__ == '__main__':
     main()

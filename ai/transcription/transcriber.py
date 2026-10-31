@@ -3,6 +3,7 @@ from pathlib import Path
 import numpy as np
 from transformers import WhisperProcessor, WhisperForConditionalGeneration
 from typing import Union
+import subprocess
 
 CACHE_DIR = (Path(__file__).resolve()).parent.parent / 'models'
 os.environ['HF_HOME'] = str(CACHE_DIR)
@@ -161,7 +162,7 @@ def process_subchunked_audio(real_byte_arr:list, processor:WhisperProcessor, mod
             running_pred[clip_id].append([chunk_id, pred_segments[index2], len(gathered_bytes[index2])])
     return running_pred
     
-def decode_subchunked_audio(running_pred:list, clip_id_dict:dict, processor:WhisperProcessor, capture_offset:float=0.0, chunk_duration:int=30) -> list | dict:
+def decode_subchunked_audio(running_pred:list, clip_id_dict:dict, processor:WhisperProcessor, chunk_duration:int=30) -> list | dict:
     end_result_arr = []
     for clip_id in running_pred:
         clip_info_arr = clip_id_dict.get(clip_id)
@@ -235,7 +236,7 @@ def decode_subchunked_audio(running_pred:list, clip_id_dict:dict, processor:Whis
         raise Exception(f'No resultant transcription; ClipIdDict was: {clip_id_dict} and RunningPred was: {running_pred}')
     
 
-def transcribe(byte_arr:list, capture_time:int=0, batch_size:int=DEFAULT_BATCH_SIZE, surpress_network_access:bool=False, already_loaded_processor:WhisperProcessor=None, already_loaded_model:WhisperForConditionalGeneration=None) -> list | dict:
+def transcribe(byte_arr:list, batch_size:int=DEFAULT_BATCH_SIZE, surpress_network_access:bool=False, already_loaded_processor:WhisperProcessor=None, already_loaded_model:WhisperForConditionalGeneration=None) -> list | dict:
     # accepts any of the formats listed in the comments of split_into_subchunks() for byte_arr
     # surpress_network_access tells .from_pretrained to not check huggingface for modelW; will error out if model isn't present in CACHE_DIR with surpress_network_access set to true
 
@@ -243,6 +244,8 @@ def transcribe(byte_arr:list, capture_time:int=0, batch_size:int=DEFAULT_BATCH_S
     # start_time: int, end_time: int, capture_time: float, user_id: str, capture_time: float, transcript_string: str, error_string: str, error_present: bool, has_transcript: bool
     # If more than one array of bytes is provided (ie list, this will be a list of that ^ dictionary
     # you can specify a user_id/capture time (instead of doing that later) which is what those np.ndarry, int, int formats are); if none is entered, ie it's just a list of np.ndarry or a single np.ndarry, user_id is set to -1 and capture_time set to 0.0
+    
+    # SIDE NOTE: We may need an intermediary to preprocess the stream of bytes into an np.ndarry of np.float32 and make sure that if the device doesn't sample at 16K bytes/second, that they are resampled, as that is what transcription expects.
 
     if already_loaded_model is not None and already_loaded_processor is not None:
         processor = already_loaded_processor
@@ -251,8 +254,57 @@ def transcribe(byte_arr:list, capture_time:int=0, batch_size:int=DEFAULT_BATCH_S
         processor, model = load_model_and_processor(surpress_network_access)
     chunked_audio, clip_dict = split_into_subchunks(byte_arr, chunk_duration=30)
     generated_predictions = process_subchunked_audio(real_byte_arr=chunked_audio, processor=processor, model=model, batch_size=batch_size)
-    returned_transcripts = decode_subchunked_audio(running_pred=generated_predictions, clip_id_dict=clip_dict, processor=processor, capture_offset=capture_time, chunk_duration=30)
+    returned_transcripts = decode_subchunked_audio(running_pred=generated_predictions, clip_id_dict=clip_dict, processor=processor, chunk_duration=30)
     return returned_transcripts
+    
+
+# convert_to_bytes was made by Gemma4 31B --> script to convert audio files directly into a list of bytes to mimic being sent a stream of bytes from the device; This is also useful for converting actual audio files, ie uploaded audio files, into the bytes needed for transcription.
+def convert_to_bytes(file):
+    command = ['ffmpeg', '-i', file, '-ac', '1', '-ar', '16000', '-f', 'f32le', '-acodec', 'pcm_f32le', '-']
+    
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    stdout_data, stderr_data = process.communicate()
+    
+    if process.returncode != 0:
+        raise RuntimeError(f"FFmpeg error: {stderr_data.decode()}")
+
+    return np.frombuffer(stdout_data, dtype=np.float32)
+    
+def transcribe_audio_files(files:str | list[str] | list[tuple[str, float]] | list[tuple[str, int]] | list[tuple[str, float, int]], capture_time:int=0, batch_size:int=DEFAULT_BATCH_SIZE, surpress_network_access:bool=False, already_loaded_processor:WhisperProcessor=None, already_loaded_model:WhisperForConditionalGeneration=None) -> list | dict:
+    if isinstance(files, str):
+        return transcribe_audio_files(files=[files], capture_time=capture_time, batch_size=batch_size, surpress_network_access=surpress_network_access, already_loaded_processor=already_loaded_processor, already_loaded_model=already_loaded_model)
+    
+    
+    byte_array = []
+    for file in files:
+        if isinstance(file, str):
+            byte_array.append([convert_to_bytes(file), 0.0, -1])
+        elif isinstance(file, list):
+            if len(file) == 1:
+                byte_array.append([convert_to_bytes(file[0]), 0.0, -1])
+            elif len(file) == 2:
+                if isinstance(file[1], int):
+                    # we have a userid but not a capture time
+                    byte_array.append([convert_to_bytes(file[0]), 0.0, file[1]])
+                elif isinstance(file[1], float):
+                    # we have a capture time but not a userid
+                    byte_array.append([convert_to_bytes(file[0]), file[1], -1])
+                else:
+                    # just disregard the other parameters if they aren't float/int
+                    byte_array.append(convert_to_bytes(file[0]))
+            elif len(file) == 3:
+                if isinstance(file[1], float) and isinstance(file[2], int):
+                    byte_array.append([convert_to_bytes(file[0]), file[1], file[2]])
+                else:
+                    # Either they got flipped (capture time and userid) or we got something completely different, so just toss them
+                    byte_array.append(convert_to_bytes(file[0]))
+            else:
+                # we have a list of... something? Check that the first 3 are correct and ignore the rest.
+                if isinstance(file[0], str) and isinstance(file[1], float) and isinstance(file[2], int):
+                    byte_array.append([convert_to_bytes(file[0]), file[1], file[2]])
+                    
+    return transcribe(byte_arr=byte_array, batch_size=batch_size, surpress_network_access=surpress_network_access, already_loaded_processor=already_loaded_processor, already_loaded_model=already_loaded_model)
     
 if __name__ == '__main__':
     print('If you want to test the transcriber, go run the file at ROOT/ai/tests/test_transcriber.py')
