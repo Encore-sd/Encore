@@ -16,7 +16,7 @@ Return on success:
 Return on fail:  
 	No return, the local backend isn't running to return anything.
 
-### /remote-health
+### /health/remote
 
 Purpose: Check that the remote backend is running and reachable by the local backend
 
@@ -45,7 +45,7 @@ Return on remote backend unreachable:
 		error: error.message  
 	}  
 
-### /postgresql-health
+### /health/sqlite
 
 Purpose: this endpoint is a health check to determine if the local backend has successfully set up the SQLite database
 
