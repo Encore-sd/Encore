@@ -16,7 +16,7 @@ Return on success:
 Return on fail:  
 	No return, the remote backend isn't running to return anything.
 
-### /postgresql-health
+### /health/postgresql
 
 Purpose: this endpoint is a health check to determine if the backend is successfully connected to the PostgreSQL server and the database is running.
 
