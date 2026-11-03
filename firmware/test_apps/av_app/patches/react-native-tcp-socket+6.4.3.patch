@@ -1,0 +1,18 @@
+diff --git a/node_modules/react-native-tcp-socket/android/src/main/java/com/asterinet/react/tcpsocket/TcpSocketModule.java b/node_modules/react-native-tcp-socket/android/src/main/java/com/asterinet/react/tcpsocket/TcpSocketModule.java
+index 121edb4..e236ee4 100644
+--- a/node_modules/react-native-tcp-socket/android/src/main/java/com/asterinet/react/tcpsocket/TcpSocketModule.java
++++ b/node_modules/react-native-tcp-socket/android/src/main/java/com/asterinet/react/tcpsocket/TcpSocketModule.java
+@@ -140,8 +140,11 @@ public class TcpSocketModule extends ReactContextBaseJavaModule {
+         executorService.execute(new Runnable() {
+             @Override
+             public void run() {
+-                TcpSocketClient socketClient = getTcpClient(cId);
+-                socketClient.destroy();
++                // A connect() that failed early never registers its socket, and the JS side
++                // still calls destroy() on error - ignore it instead of crashing the app.
++                TcpSocket socket = socketMap.get(cId);
++                if (!(socket instanceof TcpSocketClient)) return;
++                ((TcpSocketClient) socket).destroy();
+             }
+         });
+     }

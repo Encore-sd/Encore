@@ -1,0 +1,34 @@
+{
+  "expo": {
+    "name": "XIAO AV Net",
+    "slug": "av_app_sta",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.example.xiaoav.sta",
+      "infoPlist": {
+        "NSLocalNetworkUsageDescription": "Connects to the XIAO camera on your WiFi network.",
+        "NSBluetoothAlwaysUsageDescription": "Sends your WiFi details to the XIAO camera during setup."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#0082FC",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "package": "com.example.xiaoav.sta"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "./plugins/withEmbeddedDebugBundle",
+      ["react-native-ble-plx", { "neverForLocation": true }]
+    ]
+  }
+}
