@@ -14,7 +14,7 @@
 #include <Preferences.h>
 
 #define WITH_BLE   0
-#define USE_AP     0
+#define USE_AP     1
 #define AP_SSID     "XIAO-AV-TEST"
 #define AP_PASSWORD "xiaoav123"
 #define TCP_PORT   5001
