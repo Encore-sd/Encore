@@ -18,12 +18,16 @@ const pool = new Pool({
 
 // Basic root health check route
 app.get('/', (req, res) => {
-	res.status(200).send('Encore Remote Backend is running!');
+	res.status(200).send({success: true, message: 'Encore Remote Backend is running!'});
 });
 
 // Import and mount the health check routes, passing the pool object
 const healthRoutes = require('./routes/health-route')(pool);
 app.use('/health', healthRoutes);
+
+// Import and mount the authentication routes, passing the pool object
+const authRoutes = require('./routes/auth-route')(pool);
+app.use('/auth', authRoutes);
 
 app.listen(PORT, () => {
 	console.log(`Remote backend is listening on port ${PORT}`);

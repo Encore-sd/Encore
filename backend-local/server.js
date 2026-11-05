@@ -9,7 +9,7 @@ app.use(express.json());
 
 // Basic server status route
 app.get('/', (req, res) => {
-	res.status(200).send('Encore Local Backend is running!');
+	res.status(200).send({success: true, message: 'Encore Local Backend is running!'});
 });
 
 // Mount the health check routes
