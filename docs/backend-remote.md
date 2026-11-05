@@ -97,6 +97,60 @@ Return on failed to create user account:
 		error: errorMessage
 	}
 
+### POST /auth/verify-email
+
+Purpose: This endpoint allows a new user to verify their email and send back a JWT for instant log-in
+
+Paramaters: None  
+Body: email, verificationCode
+
+Protected route: false
+
+Return on success:  
+	Status: 200  
+	{  
+		success: true,  
+		message: 'Email verified successfully!',  
+		token: JWT_token,  
+		user: updatedUser.rows[0]  
+	}
+
+Return on missing body:  
+	Status: 400  
+	{  
+		success: false,
+		message: 'email and verificationCode are required.'
+	}
+
+Return on failed to find user:  
+	status: 404  
+	{  
+		success: false,  
+		error: 'User not found.'
+	}
+
+Return on user already verified:  
+	status: 400  
+	{  
+		success: false,
+		message: 'User is already verified.'
+	}
+
+Return on invald verification code:
+	status: 400  
+	{  
+		success: false,
+		message: 'Invalid verification code.'
+	}
+
+Return on failed to verify user:
+	status: 500  
+	{  
+		success: false,
+		message: 'Internal server error during email verification.'
+		error: errorMessage
+	}
+
 
 
 
