@@ -150,6 +150,60 @@ module.exports = (pool) => {
 
 	});
 
+	//User login route
+	router.post('/login', async (req, res) => {
+		const { email, password } = req.body;
+
+		if (!email || !password) {
+			return res.status(400).json({ success: false, message: 'Email and password are required.' });
+		}
+
+		try {
+			//Check if the user exists
+			const userResult = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+			if (userResult.rows.length === 0) {
+				return res.status(401).json({ success: false, message: 'Invalid email or password.' });
+			}
+
+			const user = userResult.rows[0];
+
+			//Ensure the user has verified their email before logging in
+			if(!user.isverified) {
+				return res.status(403).json({ success: false, message: 'Please verify your email before logging in.'});
+			}
+
+			// Check that the password the user entered is correct
+			const isPasswordValid = await bcrypt.compare(password, user.password);
+			if(!isPasswordValid) {
+				return res.status(401).json({ success: false, message: 'Invalid email or password.' });
+			}
+			
+			// Generate a JWT session token
+			const token = jwt.sign(
+				{ userId: user.userid, email: user.email },
+				process.env.JWT_SECRET,
+				{ expiresIn: '7d' }
+			);
+
+			return res.status(200).json({
+				success: true,
+				message: 'Logged in successfully',
+				token: token,
+				user: {
+					userId: user.userid,
+					firstName: user.firstname,
+					lastName: user.lastname,
+					email: user.email,
+					isVerified: user.isverified
+				}
+			});
+
+		} catch (error){
+			return res.status(500).json({ success: false, message: 'Internal server error during login', error: error.message});
+		}
+
+	});
+
 	return router;
 };
 

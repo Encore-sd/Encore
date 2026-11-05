@@ -151,6 +151,60 @@ Return on failed to verify user:
 		error: errorMessage
 	}
 
+### POST /auth/login
+
+Purpose: This endpoint allows a user to log into their account
+
+Paramaters: None  
+Body: email, password
+
+Protected route: false
+
+Return on success:  
+	Status: 200  
+	{  
+		success: true,  
+		message: 'Logged in successfully',  
+		token: JWT_token,  
+		user: {
+			userId: user_id
+			firstName: user_firstName
+			lastName: user_lastName
+			email: user_email
+			isVerified: true
+		}
+	}
+
+Return on missing body:  
+	Status: 400  
+	{  
+		success: false,
+		message: 'email and password are required.'
+	}
+
+Return on invalid email or password:  
+	status: 401  
+	{  
+		success: false,  
+		message: 'Invalid email or password.'
+	}
+
+Return on unverified user:
+	status: 403  
+	{  
+		success: false,
+		message: 'Please verify your email before logging in.'
+	}
+
+Return on internal server error:
+	status: 500  
+	{  
+		success: false,
+		message: 'Internal server error during login',
+		error: error.message
+	}	
+
+
 
 
 
