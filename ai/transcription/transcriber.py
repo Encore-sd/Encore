@@ -260,8 +260,7 @@ def transcribe(byte_arr:list, batch_size:int=DEFAULT_BATCH_SIZE, surpress_networ
 
 # convert_to_bytes was made by Gemma4 31B --> script to convert audio files directly into a list of bytes to mimic being sent a stream of bytes from the device; This is also useful for converting actual audio files, ie uploaded audio files, into the bytes needed for transcription.
 def convert_to_bytes(file):
-    command = ['ffmpeg', '-i', file, '-ac', '1', '-ar', '16000', '-f', 'f32le', '-acodec', 'pcm_f32le', '-']
-    
+    command = ['ffmpeg', '-i', file, '-vn', '-ac', '1', '-ar', '16000', '-f', 'f32le', '-acodec', 'pcm_f32le', '-']
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     stdout_data, stderr_data = process.communicate()
