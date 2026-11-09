@@ -54,7 +54,7 @@ module.exports = (pool) => {
 				return res.status(200).json({
 					success: true,
 					message: 'Account already exists but is unverified. A new verification code has been sent to your email.',
-					user: newUser.rows[0]
+					user: existingUser.rows[0]
 				});
 			}
 
