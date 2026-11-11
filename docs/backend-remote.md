@@ -204,9 +204,38 @@ Return on internal server error:
 		error: error.message
 	}	
 
+### POST /query ******************** INCOMPLETE ********************************
 
+Purpose: This endpoint will take in the user's natural language query and send it to the AI for processing. The AI will then return refrence numbers to memories that best match the user's query then the remote backend will return a json object of json objects that contain the memories.
 
+Paramaters: None  
+Body: query
 
+Protected route: true
+
+Return on success:  
+	Status: 200  
+	{  
+		"success": true,  
+		"message": "Query recived successfully.",  
+		"userId": 1,  
+		"query": "[sent query]"  
+	}  
+
+Return on missing query:  
+	Status: 400  
+	{  
+		success: false,  
+		message: 'Query test is required.'  
+	} 
+
+Return on server error:  
+	Status: 500  
+	{  
+		success: false,  
+		message: 'Internal server error.',  
+		error: error.message  
+	}
 
 
 
