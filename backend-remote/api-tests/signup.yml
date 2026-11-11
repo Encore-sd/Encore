@@ -12,7 +12,7 @@ http:
       {
         "firstName": "Test",
         "lastName": "User",
-        "email": "westin3dprints@gmail.com",
+        "email": "[email]",
         "password": "Password123!"
       }
   auth: inherit

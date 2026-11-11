@@ -19,9 +19,8 @@ runtime:
   scripts:
     - type: before-request
       code: |-
-        // Registering the same login twice returns 409, so make each run unique
-        bru.setVar("newLogin", `student${Date.now()}`);
-        bru.setVar("newPassword", "Passw0rd!");
+        bru.setVar("token", res.getBody().token);
+        bru.setVar("userid", res.getBody().userid);
 
 settings:
   encodeUrl: true

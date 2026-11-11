@@ -11,7 +11,7 @@ http:
     data: |-
       {
         "email": "{{email}}",
-        "verificationCode": "[verificationCode]"
+        "verificationCode": "649013"
       }
   auth: inherit
 
