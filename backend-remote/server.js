@@ -22,12 +22,17 @@ app.get('/', (req, res) => {
 });
 
 // Import and mount the health check routes, passing the pool object
-const healthRoutes = require('./routes/health-route')(pool);
-app.use('/health', healthRoutes);
+const healthRouter = require('./routes/health-route')(pool);
+app.use('/health', healthRouter);
 
 // Import and mount the authentication routes, passing the pool object
-const authRoutes = require('./routes/auth-route')(pool);
-app.use('/auth', authRoutes);
+const authRouter = require('./routes/auth-route')(pool);
+app.use('/auth', authRouter);
+
+// Import and mount the query routes, passing the pool object
+// used to process user querries
+const queryRouter = require('./routes/query-route')(pool);
+app.use('/query', queryRouter);
 
 app.listen(PORT, () => {
 	console.log(`Remote backend is listening on port ${PORT}`);
