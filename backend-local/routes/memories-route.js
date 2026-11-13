@@ -10,7 +10,7 @@ const countMemories = sqlitedb.prepare(
 	'SELECT COUNT(*) AS total FROM ResolvedMemories WHERE UserID = ?'
 );
 const selectMemories = sqlitedb.prepare(`
-	SELECT MemoryID, UserID, RefrenceNumber, AudioTranscription, ImageFileLocation,
+	SELECT MemoryID, UserID, ReferenceNumber, AudioTranscription, ImageFileLocation,
 	       GPSLongitude, GPSLatitude, TimeCaptured
 	FROM ResolvedMemories
 	WHERE UserID = ?
