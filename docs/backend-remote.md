@@ -5,9 +5,13 @@ The backend container runs on the port specified in the .env file
 The basic endpoints are located in /backend-remote/server.js
 When running in the docker container for local development the base url is: `https://localhost:[remoteBackendPortNumber]`
 
-### Root endpoint /
+### GET Root endpoint /
 
 Purpose: the root endpoint is simply a health check endpoint to tell if the backend server is correctly running.
+
+Paramaters: None
+
+Protected route: false
 
 Return on success:  
 	Status: 200  
@@ -16,9 +20,13 @@ Return on success:
 Return on fail:  
 	No return, the remote backend isn't running to return anything.
 
-### /postgresql-health
+### GET /health/postgresql
 
 Purpose: this endpoint is a health check to determine if the backend is successfully connected to the PostgreSQL server and the database is running.
+
+Paramaters: None
+
+Protected route: false
 
 Return on success:  
 	Status: 200  
@@ -33,3 +41,202 @@ Return on fail:
 		success: false,  
 		error: err.message  
 	}
+
+### POST /auth/signup
+
+Purpose: This endpoint allows a new user to sign up for an account and sends them a verification email.  
+If the user account already exists, but has not been verified, a new verification email is sent.
+
+Paramaters: None  
+Body: firstName, lastName, email, password
+
+Protected route: false
+
+Return on success:  
+	Status: 201  
+	{  
+		success: true,  
+		message: 'User registered successfully. Please check your email for the verification code.',
+		user: newUser.rows[0]
+	}
+
+Return on User already exists, but has not been verified:  
+	status: 200  
+	{  
+		success: true,  
+		message: 'Account already exists but is unverified. A new verification code has been sent to your email.'  
+	}  
+
+Return on user already exists, and has been verified:  
+	Status: 409  
+	{  
+		success: false,
+		message: 'User with this email already exists and is verified.'
+	}
+
+Return on missing body:  
+	Status: 400  
+	{  
+		success: false,
+		message: 'FirstName, LastName, Email and password are required.'
+	}
+
+Return on failed to send email:  
+	status: 500  
+	{  
+		success: false,  
+		message: 'Failed to send verification email, account was not created'
+		error: errorMessage
+	}
+
+Return on failed to create user account:  
+	status: 500  
+	{  
+		success: false,
+		message: 'Internal server error during signup.',
+		error: errorMessage
+	}
+
+### POST /auth/verify-email
+
+Purpose: This endpoint allows a new user to verify their email and send back a JWT for instant log-in
+
+Paramaters: None  
+Body: email, verificationCode
+
+Protected route: false
+
+Return on success:  
+	Status: 200  
+	{  
+		success: true,  
+		message: 'Email verified successfully!',  
+		token: JWT_token,  
+		user: updatedUser.rows[0]  
+	}
+
+Return on missing body:  
+	Status: 400  
+	{  
+		success: false,
+		message: 'email and verificationCode are required.'
+	}
+
+Return on failed to find user:  
+	status: 404  
+	{  
+		success: false,  
+		error: 'User not found.'
+	}
+
+Return on user already verified:  
+	status: 400  
+	{  
+		success: false,
+		message: 'User is already verified.'
+	}
+
+Return on invald verification code:
+	status: 400  
+	{  
+		success: false,
+		message: 'Invalid verification code.'
+	}
+
+Return on failed to verify user:
+	status: 500  
+	{  
+		success: false,
+		message: 'Internal server error during email verification.'
+		error: errorMessage
+	}
+
+### POST /auth/login
+
+Purpose: This endpoint allows a user to log into their account
+
+Paramaters: None  
+Body: email, password
+
+Protected route: false
+
+Return on success:  
+	Status: 200  
+	{  
+		success: true,  
+		message: 'Logged in successfully',  
+		token: JWT_token,  
+		user: {
+			userId: user_id
+			firstName: user_firstName
+			lastName: user_lastName
+			email: user_email
+			isVerified: true
+		}
+	}
+
+Return on missing body:  
+	Status: 400  
+	{  
+		success: false,
+		message: 'email and password are required.'
+	}
+
+Return on invalid email or password:  
+	status: 401  
+	{  
+		success: false,  
+		message: 'Invalid email or password.'
+	}
+
+Return on unverified user:
+	status: 403  
+	{  
+		success: false,
+		message: 'Please verify your email before logging in.'
+	}
+
+Return on internal server error:
+	status: 500  
+	{  
+		success: false,
+		message: 'Internal server error during login',
+		error: error.message
+	}	
+
+### POST /query ******************** INCOMPLETE ********************************
+
+Purpose: This endpoint will take in the user's natural language query and send it to the AI for processing. The AI will then return refrence numbers to memories that best match the user's query then the remote backend will return a json object of json objects that contain the memories.
+
+Paramaters: None  
+Body: query
+
+Protected route: true
+
+Return on success:  
+	Status: 200  
+	{  
+		"success": true,  
+		"message": "Query recived successfully.",  
+		"userId": 1,  
+		"query": "[sent query]"  
+	}  
+
+Return on missing query:  
+	Status: 400  
+	{  
+		success: false,  
+		message: 'Query test is required.'  
+	} 
+
+Return on server error:  
+	Status: 500  
+	{  
+		success: false,  
+		message: 'Internal server error.',  
+		error: error.message  
+	}
+
+
+
+

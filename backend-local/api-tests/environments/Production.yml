@@ -1,0 +1,5 @@
+name: Production
+variables:
+  - name: baseURL
+    value: http://localhost:5000
+    description: ""
