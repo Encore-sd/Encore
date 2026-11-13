@@ -1,6 +1,7 @@
 const express = require('express');
 const PORT = process.env.PORT || 5000;
 const healthRoutes = require('./routes/health-route');
+const memoriesRoutes = require('./routes/memories-route');
 
 const app = express();
 
@@ -14,6 +15,9 @@ app.get('/', (req, res) => {
 
 // Mount the health check routes
 app.use('/health', healthRoutes);
+
+// Mount the memories routes
+app.use('/memories', memoriesRoutes);
 
 app.listen(PORT, () => {
 	console.log(`Local backend is listening on port ${PORT}`);
