@@ -27,7 +27,6 @@ _trigger_model_available:bool = True
 _api_error_flag:bool = False
 _api_error_count:int = 0
 _temp_storage_path = Path(__file__).resolve().parent / 'temp_storage_holder.txt'
-_temp_audiofile_storage_path = Path(__file__).resolve().parent / 'temp_audiofile_storage_holder.txt'
 _loaded_processor, _loaded_model = transcriber.load_model_and_processor(surpress_network=False)
 
 # Initialise Constants; Will need tuning/tweaking based on how things are set up
@@ -104,15 +103,17 @@ def run_pipeline_thread(input, is_file_upload:bool=False, thread_id:int=-1):
             
             try:
                 if PRINT_DEBUG_LOGS: print(f'[DEBUG]{identifier} Passing Transcript to Decision Model for classification')
-                #decision_output = trigger_model.is_memorable_transcription(transcript_dict.get('transcript_string'))
                 if EXCEPTION_TESTING:
                     time.sleep(random.randint(0, 10))
-                decision_output =  {
-                    "transcription_chunk": transcript_dict.get('transcript_string'),
-                    "keep": True,
-                    "confidence": 0.70,
-                    "reason": 'flagged_important',
-                }
+                    decision_output =  {
+                        "transcription_chunk": transcript_dict.get('transcript_string'),
+                        "keep": True,
+                        "confidence": 0.70,
+                        "reason": 'flagged_important',
+                    }
+                else:
+                    decision_output = trigger_model.is_memorable_transcription(transcript_dict.get('transcript_string'))
+                
                 info_dict = {'transcript_string': transcript_dict.get('transcript_string'), 'start_time': transcript_dict.get('start_time'), 'end_time': transcript_dict.get('end_time'), 'confidence': decision_output.get('confidence')}
                 if decision_output.get('keep'):
                     info_dict['reason'] = decision_output.get('reason')
