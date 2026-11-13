@@ -18,10 +18,14 @@ const selectMemories = sqlitedb.prepare(`
 	LIMIT ? OFFSET ?
 `);
 
-// Parse a query param as a positive integer, falling back to a default
+// read a query param as a positive integer, falling back to a default
 function toPositiveInt(value, fallback) {
 	const n = Number.parseInt(value, 10);
-	return Number.isInteger(n) && n > 0 ? n : fallback;
+	if (Number.isInteger(n) && n > 0) {
+		return n;
+	} else {
+		return fallback;
+	}
 }
 
 // Get all memories for a user stored locally (users opted out of remote storage)
