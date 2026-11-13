@@ -6,37 +6,25 @@ info:
 http:
   method: GET
   url: "{{baseURL}}/health/remote"
-  body:
-    type: json
-    data: ""
   auth: inherit
 
 runtime:
   scripts:
-    - type: before-request
-      code: |-
-        // Registering the same login twice returns 409, so make each run unique
-        bru.setVar("newLogin", `student${Date.now()}`);
-        bru.setVar("newPassword", "Passw0rd!");
     - type: tests
       code: |-
         const body = res.getBody();
 
-        test("responds 201 Created", function () {
-          expect(res.getStatus()).to.equal(201);
+        test("responds 200 OK", function () {
+          expect(res.getStatus()).to.equal(200);
         });
 
-        test("returns a token and the new user", function () {
-          expect(body.token).to.be.a("string");
-          expect(body.user.login).to.equal(bru.getVar("newLogin"));
+        test("reports the remote backend as connected", function () {
+          expect(body.status).to.equal("connected");
         });
 
-        test("never returns the password", function () {
-          expect(body.user).to.not.have.property("password");
-        });
-
-        test("ignores any role sent by the client", function () {
-          expect(body.user.role).to.equal("user");
+        test("includes the remote URL and its response", function () {
+          expect(body.remoteUrl).to.be.a("string");
+          expect(body.responseMessage).to.be.a("string");
         });
 
 settings:
@@ -46,4 +34,4 @@ settings:
   maxRedirects: 5
   forwardAuthorizationHeader: true
 
-docs: Creates a new account. Does not change the logged-in user for the requests that follow.
+docs: Checks that the local backend can reach the remote backend. Fails with 502 or 503 if the remote backend is down or unreachable.

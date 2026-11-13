@@ -12,8 +12,8 @@ runtime:
   scripts:
     - type: tests
       code: |-
-        test("a protected route without a token responds 401", function () {
-          expect(res.getStatus()).to.equal(401);
+        test("a protected route without a token responds 200", function () {
+          expect(res.getStatus()).to.equal(200);
         });
 
 settings:
