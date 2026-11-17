@@ -14,3 +14,18 @@
 ├── queries/            # query handling and processing
 ├── evals/              # benchmarks and model quality [STRETCH]
 └── tests/              # pytest tests; sample inputs in tests/fixtures/```
+
+
+### Answer Model (queries):
+
+Query answering uses Qwen3-4b and uses Ollama that `queries/answer_model.py` sends requests to.
+
+Setup:
+Setup (once):
+1. Install Ollama (macOS: `brew install ollama`, unsure for other OS')
+2. Start the server: `ollama serve`
+3. In a second terminal, download the model: `ollama pull qwen3:4b-instruct`
+
+To run: keep `ollama serve` running in one terminal while using the pipeline.
+
+The server address and model name are set by `OLLAMA_URL` and `ANSWER_MODEL` in `.env` (see `.env.example`). Use the `qwen3:4b-instruct` tag exactly; the plain `qwen3:4b` tag returns its reasoning instead of an answer.
