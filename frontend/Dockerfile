@@ -1,18 +1,15 @@
-FROM node:18-alpine
+FROM node:24-bookworm-slim
 
 WORKDIR /app
 
-# Copy dependency manifests
-COPY package*.json ./
+ENV EXPO_NO_TELEMETRY=1
 
-# Install dependencies
-RUN npm install
+COPY package.json package-lock.json ./
 
-# Copy the rest of the source code
+RUN npm ci
+
 COPY . .
 
-# Expose the frontend port (e.g., Vite defaults to 5173, React to 3000)
-EXPOSE 3000
+EXPOSE 8081
 
-# Command to run the development server (adjust for host binding if using Vite)
-CMD ["npm", "run", "dev", "--", "--host"]
+CMD ["npx", "expo", "start", "--tunnel", "--port", "8081"]
