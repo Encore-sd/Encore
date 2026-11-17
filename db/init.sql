@@ -5,8 +5,9 @@ CREATE TABLE IF NOT EXISTS users (
     lastname VARCHAR(100) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    token VARCHAR(255),
-    tokenexpiredate TIMESTAMP
+    isverified BOOLEAN DEFAULT FALSE,
+    verificationcode VARCHAR(10),
+    createdat TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Create Memories Table (1-to-Many relationship with Users)[cite: 1]

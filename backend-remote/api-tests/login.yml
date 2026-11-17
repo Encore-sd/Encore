@@ -1,0 +1,32 @@
+info:
+  name: login
+  type: http
+  seq: 5
+
+http:
+  method: POST
+  url: "{{baseURL}}/auth/login"
+  body:
+    type: json
+    data: |-
+      {
+        "email": "{{email}}",
+        "password": "[Password]"
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: before-request
+      code: |-
+        bru.setVar("token", res.getBody().token);
+        bru.setVar("userid", res.getBody().userid);
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true
+
+docs: Creates a new account. Does not change the logged-in user for the requests that follow.

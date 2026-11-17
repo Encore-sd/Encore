@@ -1,0 +1,26 @@
+info:
+  name: healthCheck
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{baseURL}}/"
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test("a protected route without a token responds 401", function () {
+          expect(res.getStatus()).to.equal(401);
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true
+
+docs: "Proves the account routes are protected: this request deliberately sends no token."

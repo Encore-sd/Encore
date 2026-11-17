@@ -16,7 +16,7 @@ Return on success:
 Return on fail:  
 	No return, the local backend isn't running to return anything.
 
-### /remote-health
+### /health/remote
 
 Purpose: Check that the remote backend is running and reachable by the local backend
 
@@ -45,7 +45,7 @@ Return on remote backend unreachable:
 		error: error.message  
 	}  
 
-### /postgresql-health
+### /health/sqlite
 
 Purpose: this endpoint is a health check to determine if the local backend has successfully set up the SQLite database
 
@@ -61,5 +61,59 @@ Return on fail:
 	Status: 500  
 	{  
 		status: 'unhealthy',  
+		error: error.message  
+	}
+
+### GET /memories/:userId
+
+Purpose: get all of a user's memories stored in the local SQLite database (used when the user has opted out of remote storage). Only resolved memories (from the ResolvedMemories table) are returned, newest first by TimeCaptured.  
+Located in /backend-local/routes/memories-route.js
+
+Parameters:  
+	userId (path, required): the user's ID, must be a positive integer  
+	page (query, optional): page number to return, defaults to 1  
+	limit (query, optional): memories per page, defaults to 20, max 100  
+
+Example: `/memories/1?page=2&limit=10`
+
+Return on success:  
+	Status: 200  
+	{  
+		success: true,  
+		memories: [  
+			{  
+				MemoryID,  
+				UserID,  
+				ReferenceNumber,  
+				AudioTranscription,  
+				ImageFileLocation,  
+				GPSLongitude,  
+				GPSLatitude,  
+				TimeCaptured  
+			}  
+		],  
+		pagination: {  
+			page,  
+			limit,  
+			totalItems,  
+			totalPages,  
+			hasNextPage,  
+			hasPrevPage  
+		}  
+	}  
+
+A user with no memories still returns 200, with an empty memories array and totalItems: 0.
+
+Return on invalid userId:  
+	Status: 400  
+	{  
+		success: false,  
+		error: 'userId must be a positive integer'  
+	}  
+
+Return on fail:  
+	Status: 500  
+	{  
+		success: false,  
 		error: error.message  
 	}

@@ -17,7 +17,7 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS ResolvedMemories (
       MemoryID INTEGER PRIMARY KEY AUTOINCREMENT,
       UserID INTEGER,
-      RefrenceNumber TEXT,
+      ReferenceNumber TEXT,
       AudioTranscription TEXT,
       ImageFileLocation TEXT,
       GPSLongitude REAL,
@@ -28,7 +28,7 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS UnresolvedMemories (
       MemoryID INTEGER PRIMARY KEY AUTOINCREMENT,
       UserID INTEGER,
-      RefrenceNumber TEXT,
+      ReferenceNumber TEXT,
       AudioFileLocation TEXT,
       ImageFileLocation TEXT,
       GPSLongitude REAL,
