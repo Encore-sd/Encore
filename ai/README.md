@@ -24,7 +24,9 @@ Setup:
 Setup (once):
 1. Install Ollama (macOS: `brew install ollama`, unsure for other OS')
 2. Start the server: `ollama serve`
-3. In a second terminal, download the model: `ollama pull qwen3:4b-instruct`
+3. In a second terminal, download the models: 
+   - `ollama pull qwen3:4b-instruct`
+   - `ollama pull embeddinggemma:300m`
 
 To run: keep `ollama serve` running in one terminal while using the pipeline.
 
