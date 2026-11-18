@@ -1,7 +1,9 @@
 
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
+import * as SecureStore from 'expo-secure-store';
 import {
+  Alert,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -14,8 +16,55 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function LoginScreen() {
   const router = useRouter();
   const [mode, setMode] = useState<'signin' | 'register'>('signin');
-  const [email, setEmail] = useState('maya@email.com');
-  const [password, setPassword] = useState('encore2025');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSignIn = async () => {
+    if (!email.trim() || !password) {
+      Alert.alert('Missing information', 'Please enter your email and password.');
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const response = await fetch(
+        `${process.env.EXPO_PUBLIC_API_URL}/auth/login`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: email.trim(),
+            password,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        Alert.alert('Sign in failed', data.message || 'Please try again.');
+        return;
+      }
+
+      if (!data.token) {
+        Alert.alert('Sign in failed', 'No authentication token was returned.');
+        return;
+      }
+
+      await SecureStore.setItemAsync('authToken', data.token);
+
+      router.replace('/dashboard');
+    } catch (error) {
+      Alert.alert('Connection error', 'Unable to connect to the Encore backend.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -94,7 +143,12 @@ export default function LoginScreen() {
         {/* Primary button */}
         <Pressable
           style={styles.loginButton}
-          onPress={() => router.replace('/dashboard')}
+          onPress={() => {
+            if (mode === 'signin') {
+              handleSignIn();
+            }
+          }}
+          disabled={isLoading}
         >
           <Text style={styles.loginButtonText}>
             {mode === 'signin' ? 'Sign in' : 'Create account'}
