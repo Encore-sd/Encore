@@ -16,6 +16,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function LoginScreen() {
   const router = useRouter();
   const [mode, setMode] = useState<'signin' | 'register'>('signin');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -61,6 +63,57 @@ export default function LoginScreen() {
       router.replace('/dashboard');
     } catch (error) {
       Alert.alert('Connection error', 'Unable to connect to the Encore backend.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRegister = async () => {
+    if (!firstName.trim() || !lastName.trim() || !email.trim() || !password) {
+      Alert.alert('Missing information', 'Please fill in all fields.');
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const response = await fetch(
+        `${process.env.EXPO_PUBLIC_API_URL}/auth/signup`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            firstName: firstName.trim(),
+            lastName: lastName.trim(),
+            email: email.trim(),
+            password,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        Alert.alert(
+          'Registration failed',
+          data.message || 'Please try again.'
+        );
+        return;
+      }
+
+      router.push({
+        pathname: '/verify-email',
+        params: {
+          email: email.trim(),
+        },
+      });
+    } catch (error) {
+      Alert.alert(
+        'Connection error',
+        'Unable to connect to the Encore backend.'
+      );
     } finally {
       setIsLoading(false);
     }
@@ -119,6 +172,28 @@ export default function LoginScreen() {
           </Pressable>
         </View>
 
+        {mode === 'register' && (
+          <>
+            <Text style={styles.label}>First name</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter your first name"
+              value={firstName}
+              onChangeText={setFirstName}
+              autoCapitalize="words"
+            />
+
+            <Text style={styles.label}>Last name</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter your last name"
+              value={lastName}
+              onChangeText={setLastName}
+              autoCapitalize="words"
+            />
+          </>
+        )}
+
         {/* Email */}
         <Text style={styles.label}>Email</Text>
         <TextInput
@@ -146,6 +221,8 @@ export default function LoginScreen() {
           onPress={() => {
             if (mode === 'signin') {
               handleSignIn();
+            } else {
+              handleRegister();
             }
           }}
           disabled={isLoading}
