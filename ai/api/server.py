@@ -1,10 +1,21 @@
 from fastapi import FastAPI, UploadFile, HTTPException
 from threading import Lock
 from pipeline.data_pipeline import data_transport
-
+from pydantic import BaseModel
 
 app = FastAPI()
 locker = Lock()
+
+# shape of the /audio response, shown on the /docs page and checked on every reply
+# everything except transcript_string is None when the audio has no speech
+class AudioResult(BaseModel):
+    transcript_string: str
+    start_time: float | None
+    end_time: float | None
+    keep: bool | None
+    confidence: float | None
+    reason: str | None
+    embedding: list[float] | None
 
 ## from docs for init testing 
 @app.get("/")
@@ -13,7 +24,7 @@ def root():
 
 
 @app.post("/audio")
-def process_audio(file: UploadFile):
+def process_audio(file: UploadFile) -> AudioResult:
     try:
         with locker: # a second request waits here until the first one is done
             response = data_transport(file.file.read())
