@@ -22,7 +22,8 @@ db.exec(`
       ImageFileLocation TEXT,
       GPSLongitude REAL,
       GPSLatitude REAL,
-      TimeCaptured TEXT
+      TimeCaptured TEXT,
+      Embedding TEXT
   );
 
   CREATE TABLE IF NOT EXISTS UnresolvedMemories (

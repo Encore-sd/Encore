@@ -1,3 +1,6 @@
+-- Add the pgvector extension
+CREATE EXTENSION IF NOT EXISTS vector;
+
 -- Create Users Table
 CREATE TABLE IF NOT EXISTS users (
     userid SERIAL PRIMARY KEY,
@@ -7,7 +10,7 @@ CREATE TABLE IF NOT EXISTS users (
     password VARCHAR(255) NOT NULL,
     isverified BOOLEAN DEFAULT FALSE,
     verificationcode VARCHAR(10),
-    createdat TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    createdate TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Create Memories Table (1-to-Many relationship with Users)[cite: 1]
@@ -21,6 +24,7 @@ CREATE TABLE IF NOT EXISTS memories (
     gpslongitude NUMERIC(11, 8),
     gpslatitude NUMERIC(10, 8),
     timecaptured TIMESTAMP,
+    embedding VECTOR(768),
     CONSTRAINT fk_user
         FOREIGN KEY(userid) 
         REFERENCES users(userid)
