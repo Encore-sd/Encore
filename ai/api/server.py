@@ -1,6 +1,7 @@
 from fastapi import FastAPI, UploadFile, HTTPException
 from threading import Lock
-from pipeline.data_pipeline import data_transport
+from pipeline.data_pipeline import data_transport # imported module
+from pipeline.query_pipeline import query_transport  #imported module 
 from pydantic import BaseModel
 
 app = FastAPI()
@@ -16,6 +17,15 @@ class AudioResult(BaseModel):
     confidence: float | None
     reason: str | None
     embedding: list[float] | None
+
+# class to store a users ID and question to be processed through the pipeline
+class QueryRequest(BaseModel):
+    question : str
+    userID : int 
+
+# class to return the string from the query pipeline
+class QueryResult(BaseModel):
+    answer : str
 
 ## from docs for init testing 
 @app.get("/")
@@ -57,3 +67,13 @@ def process_audio(file: UploadFile) -> AudioResult:
             }
     except ValueError:
         raise HTTPException(415, "A complete audio file is required (wav, mp3, m4a, ogg, flac, webm, aiff)")
+
+
+@app.post("/query")
+def process_query(userRequest: QueryRequest) -> QueryResult:
+    model_response = query_transport(userRequest.question, userRequest.userID)
+
+    return {
+        "answer" : model_response
+    }
+
