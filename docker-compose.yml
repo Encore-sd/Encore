@@ -65,14 +65,14 @@ services:
     container_name: encore_frontend
     restart: unless-stopped
     ports:
-      - "${FRONTEND_PORT:-3000}:${FRONTEND_PORT:-3000}" # Maps the port on your machine to the port in the container
+      - "${FRONTEND_PORT:-8081}:8081"
     volumes:
       - ./frontend:/app
       - /app/node_modules
-      - ${HOME}/.expo:/root/.expo:ro
     environment:
       - CI=0
       - EXPO_NO_TELEMETRY=1
+      - EXPO_TOKEN=${EXPO_TOKEN}
     stdin_open: true
     tty: true
     networks:
