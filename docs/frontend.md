@@ -48,12 +48,11 @@ During local development, this URL must be reachable from the physical device ru
 
 Once the remote backend is deployed, `EXPO_PUBLIC_API_URL` can be updated to use the shared hosted backend URL.
 
-## Local Backend Connection for Physical Devices
+### Local Backend Connection for Physical Devices
 
 When testing the application on a physical mobile device, the device must be able to reach the remote backend running on the development computer.
 
-First, find the Windows IPv4 address by running the following command in Windows Command Prompt:
-
+First, find the Windows IPv4 address by running the following command in Windows Command Prompt:  
 `ipconfig`
 
 Look for the `IPv4 Address` of the network adapter currently being used.
@@ -64,13 +63,21 @@ Next, find the WSL IPv4 address by running the following command in the VS Code 
 
 The Windows IPv4 address is used by the mobile application to contact the development computer. The WSL IPv4 address is used to forward that connection to the backend running through Docker.
 
+## For Linux:
+
+Or if you're on Linux run this command to show all ipv4 address on you computer:  
+`ip -4 -br addr show`  
+The one you're looking for should start with 192.--- or 10.---
+
+If you have your firewall on, make sure to allow traffic in on the posrt your backend is running on
+
 ### Configure the Frontend API URL
 
 Create a `.env` file inside the `frontend` directory if one does not already exist.
 
 Set `EXPO_PUBLIC_API_URL` to the Windows IPv4 address and remote backend port:
 
-`EXPO_PUBLIC_API_URL=http://<WINDOWS_IPV4>:5001`
+`EXPO_PUBLIC_API_URL=http://<YOUR_IPV4>:5001`
 
 For example:
 
@@ -134,7 +141,7 @@ If the Windows or mobile device IPv4 address changes, update the existing rule:
 
 Before testing Sign In or Create Account in Expo Go, open the following URL in the mobile device's browser:
 
-`http://<WINDOWS_IPV4>:5001`
+`http://<YOUR_IPV4>:5001`
 
 A successful response from the Encore remote backend confirms that the mobile device can reach the backend.
 
