@@ -2,6 +2,7 @@
 from transcription import transcriber
 from trigger_model import jev_api
 from representation import text_embedder
+from requests.exceptions import ConnectionError
 
 # where the pipeline begins
 def data_transport(audio):
@@ -14,8 +15,11 @@ def data_transport(audio):
         return
 
     # embed string first
-    text_vector = text_embedder.embed_transcription(transcript_str)
-
+    try:
+        text_vector = text_embedder.embed_transcription(transcript_str)
+    except ConnectionError:
+        text_vector = None
+    
     # check if its memorable
     cheap_classification = jev_api.is_memorable_transcription(transcript_str)
     if cheap_classification["keep"]: # if true continue pipeline to KG
