@@ -45,6 +45,7 @@ Run from the `ai/` folder, with `ollama serve` already running:
 The server listens on `http://127.0.0.1:8000`. Open `/docs` there to see and try the endpoints.
 
 - `POST /audio`: takes an audio file, returns the transcript, keep decision and embedding.
+- `POST /retry_for_missing_info`: takes a dictionary in the shape of `/audio`'s output; Runs embedding/classification if their respective fields are None, returns None (modifies provided dictionary in-place, raises HTTP Exception with status 400 if invalid input)
 - `POST /query`: takes a question and user ID, returns an answer.
 
 Request and response shapes are in `contracts/ai-endpoints.md`. `/query` needs `SEARCH_URL` in `.env` to point at the backend's search endpoint.
