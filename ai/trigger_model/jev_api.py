@@ -14,10 +14,26 @@ KEEP_THRESHOLD = 0.35 # low cutoff on purpose, only drop the definite no's, can 
 API_KEY = os.environ.get("TYPESAFE_API_KEY", "XAXAXAXAXAXAXAXAXAXAX") # Load the API Key for Typesafe's JEV (default is set to a nonsense string)
 RetryPolicyObj = RetryPolicy(max_retries=3, backoff_max=0.2, timeout=1.0) # typesafe's recommended RetryPolicy parameters
 
-#function to call Jev API and handle if a moment is memorable or not.
-#returns keep/discard decision, confidence and reason, placeholder shape until the shared output schema (SCRUM-48) is set
+temp_bool_str = os.environ.get("TRY_API_THEN_LOCAL", 'True')
+if temp_bool_str == 'True' or temp_bool_str == 'False':
+    TRY_API_THEN_LOCAL = True if temp_bool_str == 'True' else False
+else:
+    print(f'The .env value for TRY_API_THEN_LOCAL was entered incorrectly; Accepted values are "True" or "False"; True will be used until the server is launched with a valid .env value; The entered value was: {temp_bool_str}')
+    TRY_API_THEN_LOCAL:bool = True
 
+# routes between Local Trigger Model and API Trigger Model
 def is_memorable_transcription(transcription):
+    if TRY_API_THEN_LOCAL:
+        api_response = is_memorable_transcription_api(transcription)
+        if api_response.get('status') != 1:
+            return is_memorable_transcription_local(transcription)
+        return api_response
+    else:
+        return is_memorable_transcription_local(transcription)
+
+#function to call Local Trigger Model and handle if a moment is memorable or not.
+#returns keep/discard decision, confidence and reason, placeholder shape until the shared output schema (SCRUM-48) is set
+def is_memorable_transcription_local(transcription):
     # NOTE: Is it good, not a clue. This is just the first model I found that could use the decision pipeline, didn't require external dependencies, and wasn't monstrously large (it's still big)
     model_pipeline = pipeline("decision", model="carrtesy/EXAONE-4.0-1.2B-JEV")
     response = model_pipeline(
@@ -58,9 +74,10 @@ def is_memorable_transcription(transcription):
         "status": 1,
         "error": "",
     }
-    
 
-def is_memorable_transcription_old(transcription):
+#function to call Jev API and handle if a moment is memorable or not.
+#returns keep/discard decision, confidence and reason, placeholder shape until the shared output schema (SCRUM-48) is set
+def is_memorable_transcription_api(transcription):
     try:
         with TypeSafeClient(api_key=API_KEY) as client:
             try:
@@ -112,12 +129,12 @@ def is_memorable_transcription_old(transcription):
                 # Unknown TypeSafeError Exception type
                 else: raise Exception(f"We haven't accounted for the following TypeSafeError error: ({type(exception)}): {exception}")
                 
-                return {"transcription_chunk": transcription, "keep": None, "confidence": -1, "reason": None, "status": status_val, "error": exception}
+                return {"transcription_chunk": transcription, "keep": None, "confidence": None, "reason": None, "status": status_val, "error": exception}
             
     except TypeSafeError as exception:
         # API authentification error gets raised immediantly so the catches within client wouldn't catch it
         if type(exception) is TypeSafeError and "No API key was provided" in str(exception):
-            return {"transcription_chunk": transcription, "keep": None, "confidence": -1, "reason": None, "status": 4, "error": exception}
+            return {"transcription_chunk": transcription, "keep": None, "confidence": None, "reason": None, "status": 4, "error": exception}
         else:
             print(f'Unknown Exception raised during TypeSafe client instantiation/running: {exception}')
             return None
