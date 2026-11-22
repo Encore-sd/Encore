@@ -33,8 +33,9 @@ def missing_info_transport(information_dict) -> dict:
         classification_data = redo_classification(transcript_string)
     
     # if backend ommitted the embedding vector or the embedding vector is None (which it is when the Embedding Model isn't available), send it off to the Embedding Model to be embedded
-    embedding_vector = None
-    if information_dict.get('embedding') is None:
+    if information_dict.get('embedding') is not None:
+        embedding_vector = information_dict.get('embedding')
+    else:
         embedding_vector = redo_embedding(transcript_string)
     
     return {
