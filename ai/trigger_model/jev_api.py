@@ -12,6 +12,7 @@ from transformers import pipeline
 
 KEEP_THRESHOLD = 0.35 # low cutoff on purpose, only drop the definite no's, can be finetuned down the line
 API_KEY = os.environ.get("TYPESAFE_API_KEY", "XAXAXAXAXAXAXAXAXAXAX") # Load the API Key for Typesafe's JEV (default is set to a nonsense string)
+LOCAL_TRIGGER_MODEL = os.environ.get("LOCAL_TRIGGER_MODEL", "carrtesy/EXAONE-4.0-1.2B-JEV")
 RetryPolicyObj = RetryPolicy(max_retries=3, backoff_max=0.2, timeout=1.0) # typesafe's recommended RetryPolicy parameters
 
 temp_bool_str = os.environ.get("TRY_API_THEN_LOCAL", 'True')
@@ -35,7 +36,7 @@ def is_memorable_transcription(transcription):
 #returns keep/discard decision, confidence and reason, placeholder shape until the shared output schema (SCRUM-48) is set
 def is_memorable_transcription_local(transcription):
     # NOTE: Is it good, not a clue. This is just the first model I found that could use the decision pipeline, didn't require external dependencies, and wasn't monstrously large (it's still big)
-    model_pipeline = pipeline("decision", model="carrtesy/EXAONE-4.0-1.2B-JEV")
+    model_pipeline = pipeline("decision", model=LOCAL_TRIGGER_MODEL)
     response = model_pipeline(
         {
             "state": transcription, # what we want evaluated by the decision model, assumption: this is a string, though this could change
