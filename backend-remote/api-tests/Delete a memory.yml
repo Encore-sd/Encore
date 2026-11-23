@@ -1,10 +1,10 @@
 info:
   name: Delete a memory
   type: http
-  seq: 9
+  seq: 10
 
 http:
-  method: GET
+  method: DELETE
   url: "{{baseURL}}/memory/{{userid}}/{{memoryid}}"
   headers:
     - name: Authorization

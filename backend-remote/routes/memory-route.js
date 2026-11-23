@@ -5,7 +5,88 @@ const authenticateToken = require('../middleware/auth');
 module.exports = (pool) => {
 
 	// Insert a single memorie's details without sending it to the AI
-	router.post('/insert/:userId', authenticateToken, async (req, res) => {
+	router.put('/:userId', authenticateToken, async (req, res) => {
+		const requestedUserId = parseInt(req.params.userId, 10);
+		const authenticatedUserId = req.user.userId;
+
+		if(isNaN(requestedUserId) || requestedUserId !== authenticatedUserId) {
+			return res.status(403).json({
+				success: false,
+				message: 'Access denied.'
+			});
+		}
+
+		const {
+			audiotranscription = null,
+			imagefilelocation = null,
+			gpslongitude = null,
+			gpslatitude = null,
+			timecaptured = null,
+			embedding = null
+		} = req.body;
+
+		// Format embedding as a pgvector literal string if provided as an array
+		let formattedEmbedding = null;
+		if (embedding !== null && embedding !== undefined) {
+			if (Array.isArray(embedding)) {
+				if (embedding.length !== 768) {
+					return res.status(400).json({
+						success: false,
+						message: `Embedding must contain exactly 768 dimensions (received ${embedding.length}).`
+					});
+				}
+				formattedEmbedding = `[${embedding.join(',')}]`;
+			} else if (typeof embedding === 'string') {
+				formattedEmbedding = embedding;
+			} else {
+				return res.status(400).json({
+					success: false,
+					message: 'Embedding must be an array of 768 numbers or a pgvector string.'
+				});
+			}
+		}
+
+		try {
+			const insertQuery = `
+				INSERT INTO memories (
+					userid,
+					audiotranscription,
+					imagefilelocation,
+					gpslongitude,
+					gpslatitude,
+					timecaptured,
+					embedding
+				) VALUES ($1, $2, $3, $4, $5, $6, $7::vector)
+				RETURNING
+					memoryid,
+					userid
+			`;
+
+			const values = [
+				requestedUserId,
+				audiotranscription,
+				imagefilelocation,
+				gpslongitude,
+				gpslatitude,
+				timecaptured,
+				formattedEmbedding
+			];
+
+			const result = await pool.query(insertQuery, values);
+
+			return res.status(201).json({
+				success: true,
+				message: 'Memory inserted successfully.',
+				memory: result.rows[0]
+			});
+		} catch (error) {
+			return res.status(500).json({
+				success: false,
+				message: 'Internal server error.',
+				error: error.message
+			});
+		}
+
 	});
 
 	//[baseUrl]/userId?limit=20&offset=0
@@ -126,12 +207,13 @@ module.exports = (pool) => {
 
 			return res.status(200).json({
 				success: true,
+				message: 'Memory deleted successfully.'
 			});
 
 		} catch (error) {
 			return res.status(500).json({
 				success: false,
-				message: 'Error deleting memory',
+				message: 'Error deleting memory.',
 				error: error.message
 			});
 		}

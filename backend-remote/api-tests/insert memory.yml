@@ -1,0 +1,40 @@
+info:
+  name: insert memory
+  type: http
+  seq: 7
+
+http:
+  method: PUT
+  url: "{{baseURL}}/memory/{{userid}}"
+  headers:
+    - name: Authorization
+      value: Bearer {{token}}
+  body:
+    type: json
+    data: |-
+      {
+        "audiotranscription": "Discussed Senior Design API routes and Docker setup.",
+        "imagefilelocation": "/uploads/memories/img_101.jpg",
+        "gpslongitude": -81.20005600,
+        "gpslatitude": 28.60242700,
+        "timecaptured": "2026-11-23T17:30:00.000Z",
+        "embedding": null
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: before-request
+      code: |-
+        // Registering the same login twice returns 409, so make each run unique
+        bru.setVar("newLogin", `student${Date.now()}`);
+        bru.setVar("newPassword", "Passw0rd!");
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true
+
+docs: Creates a new account. Does not change the logged-in user for the requests that follow.

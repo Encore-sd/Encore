@@ -1,7 +1,7 @@
 info:
   name: Fetch memory details
   type: http
-  seq: 8
+  seq: 9
 
 http:
   method: GET
