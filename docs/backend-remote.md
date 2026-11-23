@@ -237,6 +237,84 @@ Return on server error:
 		error: error.message  
 	}
 
+### GET /memory/:userId
 
+Purpose: This endpoint will take in the user's id and fetch paginated memories for that user.
+
+Paramaters: limit, offset
+Body: None
+
+Protected route: true
+
+Return on success:  
+	Status: 200  
+	{  
+		"success": true,
+		"memories": [],
+		"pagination": {
+			"limit": 20,
+			"offset": 0,
+			"currentPage": 1,
+			"totalItems": 0,
+			"totalPages": 0,
+			"hasNextPage": false,
+			"hasPreviousPage": false
+		}
+	}  
+
+Return on unathorized:  
+	Status: 403  
+	{  
+		"success": false,
+		"message": "Access denied."
+	}  
+
+Return on server error:  
+	Status: 500  
+	{  
+		success: false,  
+		message: 'Internal server error.',  
+		error: error.message  
+	}
+
+### GET /memory/:userId/:memoryId
+
+Purpose: This endpoint will take in the user's id and a memoryId and return details for that memory
+
+Paramaters: limit, offset
+Body: None
+
+Protected route: true
+
+Return on success:  
+	Status: 200  
+	{  
+		"success": true,
+		"memories": [],
+		"pagination": {
+			"limit": 20,
+			"offset": 0,
+			"currentPage": 1,
+			"totalItems": 0,
+			"totalPages": 0,
+			"hasNextPage": false,
+			"hasPreviousPage": false
+		}
+	}  
+
+Return on unathorized:  
+	Status: 403  
+	{  
+		"success": false,
+		"message": "Access denied."
+	}  
+
+Return on server error:  
+	Status: 500  
+	{  
+		success: false,  
+		message: 'Internal server error.',  
+		error: error.message  
+	}
 
 

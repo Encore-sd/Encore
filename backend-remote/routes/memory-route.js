@@ -22,7 +22,7 @@ module.exports = (pool) => {
 		try {
 			const [memoriesResult, countResult] = await Promise.all([
 				pool.query(
-					`SELECT audiotranscription, imagefilelocation, timecaptured FROM memories
+					`SELECT memoryid, audiotranscription, imagefilelocation FROM memories
 					WHERE userid = $1
 					ORDER BY timecaptured DESC
 					LIMIT $2 OFFSET $3`,
@@ -60,5 +60,48 @@ module.exports = (pool) => {
 			});
 		}
 	});
+
+	router.get('/:userId/:memoryId', authenticateToken, async (req, res) => {
+		const requestedUserId = parseInt(req.params.userId, 10);
+		const authenticatedUserId = req.user.userId;
+
+		if(isNaN(requestedUserId) || requestedUserId !== authenticatedUserId) {
+			return res.status(403).json({
+				success: false,
+				message: 'Access denied.'
+			});
+		}
+
+		try {
+			const memory = await pool.query(
+				`SELECT memoryid, audiotranscription, imagefilelocation, gpslongitude, gpslatitude, timecaptured FROM memories
+				WHERE userid = $1
+				LIMIT 1`,
+				[requestedUserId]
+			);
+
+			if(memory.rows.length > 0){
+				return res.status(200).json({
+					success: true,
+					memory: memory.rows[0]
+				});
+			} else {
+				return res.status(404).json({
+					success: false,
+					message: 'Memory not found'
+				});
+
+			}
+
+		} catch (error) {
+			return res.status(500).json({
+				success: false,
+				message: 'Error fetching memory',
+				error: error.message
+			});
+		}
+
+	});
+
 	return router;
 };
