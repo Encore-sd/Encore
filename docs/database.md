@@ -7,17 +7,16 @@
 	- lastname VARCHAR(100)  
 	- email VARCHAR(255)  
 	- password VARCHAR(255)  
-	- token VARCHAR(255)  
-	- tokenexpiredate TIMESTAMP  
+	- isverified BOOLEAN  
+	- verificationcode VARCHAR(10)  
+	- createdate TIMESTAMP  
 
 ### memories
 - collumns  
 	- memoryid SERIAL	:	PRIMARY KEY  
 	- userid INT NOT NULL	:	foreign_key  
 	- audiotranscription TEXT  
-	- audiofilelocation VARCHAR(500)  
 	- imagefilelocation VARCHAR(500)  
-	- keywords TEXT  
 	- gpslongitude NUMERIC(11, 8)  
 	- gpslatitude NUMERIC(10, 8)  
 	- timecaptured TIMESTAMP  
@@ -27,7 +26,7 @@
 
 The database uses postgreSQL
 
-When the container is started (see docker.md) it will automatically runall sql files at /backend/db/*.sql in alphapetical order; which will set up the following tables in the encore_db, based on the ERDs.  
+When the container is started (see docker.md) it will automatically run all sql files at /backend/db/*.sql in alphapetical order; which will set up the following tables in the encore_db, based on the ERDs.  
 - users  
 - memories  
 
