@@ -1,0 +1,41 @@
+info:
+  name: Fetch all memories
+  type: http
+  seq: 7
+
+http:
+  method: GET
+  url: "{{baseURL}}/memory/{{userid}}?limit=20&offset=0"
+  headers:
+    - name: Authorization
+      value: Bearer {{token}}
+  params:
+    - name: limit
+      value: "20"
+      type: query
+    - name: offset
+      value: "0"
+      type: query
+  body:
+    type: json
+    data: ""
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        if(res.getBody().memories.length > 0){
+          bru.setVar("memoryid", res.getBody().memories[0].memoryid);
+        } else {
+          bru.setVar("memoryid", -1);
+        }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true
+
+docs: Creates a new account. Does not change the logged-in user for the requests that follow.

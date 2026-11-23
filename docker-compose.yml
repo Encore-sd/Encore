@@ -45,7 +45,8 @@ services:
       - app-network
 
   postgres_db:
-    image: postgres:16-alpine
+    # image: postgres:16-alpine
+    image: pgvector/pgvector:pg16
     container_name: encore_postgres
     restart: always
     environment:

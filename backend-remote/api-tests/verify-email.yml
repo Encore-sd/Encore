@@ -11,7 +11,7 @@ http:
     data: |-
       {
         "email": "{{email}}",
-        "verificationCode": "649013"
+        "verificationCode": "756389"
       }
   auth: inherit
 
@@ -20,7 +20,7 @@ runtime:
     - type: after-response
       code: |-
         bru.setVar("token", res.getBody().token);
-        bru.setVar("userid", res.getBody().userid);
+        bru.setVar("userid", res.getBody().user.userId);
 
 settings:
   encodeUrl: true

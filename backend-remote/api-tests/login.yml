@@ -11,16 +11,16 @@ http:
     data: |-
       {
         "email": "{{email}}",
-        "password": "[Password]"
+        "password": "Password123!"
       }
   auth: inherit
 
 runtime:
   scripts:
-    - type: before-request
+    - type: after-response
       code: |-
         bru.setVar("token", res.getBody().token);
-        bru.setVar("userid", res.getBody().userid);
+        bru.setVar("userid", res.getBody().user.userId);
 
 settings:
   encodeUrl: true

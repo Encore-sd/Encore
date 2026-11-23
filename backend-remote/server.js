@@ -34,6 +34,12 @@ app.use('/auth', authRouter);
 const queryRouter = require('./routes/query-route')(pool);
 app.use('/query', queryRouter);
 
+// Import and mount the memory routes, passing the pool object
+// used to fetch user memories
+const memoryRouter = require('./routes/memory-route')(pool);
+app.use('/memory', memoryRouter);
+
+
 app.listen(PORT, () => {
 	console.log(`Remote backend is listening on port ${PORT}`);
 });
