@@ -5,7 +5,7 @@ info:
 
 http:
   method: GET
-  url: "{{baseURL}}/memory/{{userid}}"
+  url: "{{baseURL}}/memory/{{userid}}/{{memoryid}}"
   headers:
     - name: Authorization
       value: Bearer {{token}}

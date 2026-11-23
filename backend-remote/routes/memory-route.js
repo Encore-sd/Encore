@@ -4,6 +4,10 @@ const authenticateToken = require('../middleware/auth');
 
 module.exports = (pool) => {
 
+	// Insert a single memorie's details without sending it to the AI
+	router.post('/insert/:userId', authenticateToken, async (req, res) => {
+	});
+
 	//[baseUrl]/userId?limit=20&offset=0
 	router.get('/:userId', authenticateToken, async (req, res) => {
 		const requestedUserId = parseInt(req.params.userId, 10);
@@ -75,9 +79,9 @@ module.exports = (pool) => {
 		try {
 			const memory = await pool.query(
 				`SELECT memoryid, audiotranscription, imagefilelocation, gpslongitude, gpslatitude, timecaptured FROM memories
-				WHERE userid = $1
+				WHERE userid = $1 AND memoryid = $2
 				LIMIT 1`,
-				[requestedUserId]
+				[requestedUserId, parseInt(req.params.memoryId, 10)]
 			);
 
 			if(memory.rows.length > 0){
@@ -102,6 +106,38 @@ module.exports = (pool) => {
 		}
 
 	});
+
+	router.delete('/:userId/:memoryId', authenticateToken, async (req, res) => {
+		const requestedUserId = parseInt(req.params.userId, 10);
+		const authenticatedUserId = req.user.userId;
+
+		if(isNaN(requestedUserId) || requestedUserId !== authenticatedUserId) {
+			return res.status(403).json({
+				success: false,
+				message: 'Access denied.'
+			});
+		}
+
+		try {
+			const memory = await pool.query(
+				`DELETE FROM memories WHERE userid = $1 AND memoryid = $2`,
+				[requestedUserId, parseInt(req.params.memoryId, 10)]
+			);
+
+			return res.status(200).json({
+				success: true,
+			});
+
+		} catch (error) {
+			return res.status(500).json({
+				success: false,
+				message: 'Error deleting memory',
+				error: error.message
+			});
+		}
+
+	});
+
 
 	return router;
 };
