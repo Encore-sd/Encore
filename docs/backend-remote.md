@@ -237,6 +237,40 @@ Return on server error:
 		error: error.message  
 	}
 
+### PUT /memory/:userId
+
+Purpose: This endpoint will take in a user's id and memory details in the body and store that memory. This endpoint is good for storing memories that have already been analyzed by the AI, such as the user opts into remote storage but already has resolved memories from a past time they were already opted into remote storage
+
+Paramaters: None
+Body: audiotranscription, imagefilelocation, gpslongitude, gpslatitude, timecaptured, embedding
+
+Protected route: true
+
+Return on success:  
+	Status: 200  
+	{  
+		"success": true,
+		"message": "Memory inserted successfully.",
+		"memory": {
+		"memoryid": 3,
+		"userid": 1
+	}  
+
+Return on unathorized:  
+	Status: 403  
+	{  
+		"success": false,
+		"message": "Access denied."
+	}  
+
+Return on server error:  
+	Status: 500  
+	{  
+		success: false,  
+		message: 'Internal server error.',  
+		error: error.message  
+	}
+
 ### GET /memory/:userId
 
 Purpose: This endpoint will take in the user's id and fetch paginated memories for that user.
@@ -317,4 +351,34 @@ Return on server error:
 		error: error.message  
 	}
 
+### DELETE /memory/:userId/:memoryId
+
+Purpose: This endpoint takes in a user's id and a memory id, then deletes that memory for the user
+
+Paramaters: None
+Body: None
+
+Protected route: true
+
+Return on success:  
+	Status: 200  
+	{  
+		"success": true,
+		"message": "Memory deleted successfully."
+	}  
+
+Return on unathorized:  
+	Status: 403  
+	{  
+		"success": false,
+		"message": "Access denied."
+	}  
+
+Return on server error:  
+	Status: 500  
+	{  
+		success: false,  
+		message: 'Internal server error.',  
+		error: error.message  
+	}
 
