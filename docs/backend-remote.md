@@ -263,6 +263,20 @@ Return on unathorized:
 		"message": "Access denied."
 	}  
 
+Return on invalid memoryVectorEmbedding:  
+	Status: 400  
+	{  
+		success: false,
+		message: `Embedding must contain exactly ${vectorDim} dimensions (received ${embedding.length}).`
+	}
+
+Return on missing memoryVectorEmbedding:  
+	Status: 400  
+	{  
+		success: false,
+		message: `Embedding must be an array of ${vectorDim} numbers or a pgvector string.`
+	}
+
 Return on server error:  
 	Status: 500  
 	{  
@@ -415,4 +429,85 @@ Return on server error:
 		error: error.message  
 	}
 
+### POST /query/retriever/:userId
+
+Purpose: This endpoint takes in a user's id, a value of k, and a embedded vector
+
+Paramaters: None
+Body:  
+{  
+	"k": 1,  
+	"queryVector": [{array of x numbers}]  
+}  
+
+Protected route: true
+
+Return on success:  
+	Status: 200  
+	{  
+		"success": true,
+		"userId": 1,
+		"k": 1,
+		"count": 1,
+		"memories": [{
+			"memoryid": 1,
+			"userid": 1,
+			"audiotranscription": "Discussed Senior Design API routes and Docker setup.",
+			"imagefilelocation": "/uploads/memories/img_101.jpg",
+			"gpslongitude": "-81.20005600",
+			"gpslatitude": "28.60242700",
+			"timecaptured": "2026-11-23T17:30:00.000Z",
+			"distance": 0.9248846811386489
+		}]
+	}
+
+Return on user not found based on JWT:  
+	Status: 400  
+	{  
+		"success": false,
+		"message": "user not found."
+	}
+
+Return on unathorized due to not being called by our AI:  
+	Status: 403  
+	{  
+		"success": false,
+		"message": "Access denied, must be AI."
+	}  
+
+Return on requested user not found:  
+	Status: 404  
+	{  
+		success: false,
+		message: 'Invalid userId.'
+	}
+
+Return on invalid value of k:
+	Status: 400  
+	{  
+		success: false,
+		message: 'paramater k must be a positive integer.'
+	}
+
+Return on invalid queryVector:  
+	Status: 400  
+	{  
+		success: false,
+		message: `queryVector must be an array of ${vectorDim} finite numbers (received length ${queryVector.length}).`
+	}
+
+Return on missing queryVector:  
+	Status: 400  
+	{  
+		success: false,
+		message: `queryVector is required and must be ${vectorDim}-element number array.`	
+	}
+
+Return on server error:  
+	Status: 500  
+	{  
+		success: false,  
+		message: 'Internal server error.',  
+		error: error.message  
+	}
 

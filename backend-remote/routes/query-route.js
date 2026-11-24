@@ -45,7 +45,7 @@ module.exports = (pool) => {
 			} else if(aiUser.rows[0].role !== 'ai'){
 				return res.status(403).json({
 					success: false,
-					message: 'Access denied.'
+					message: 'Access denied, must be AI.'
 				});
 			}
 		} catch (error) {
