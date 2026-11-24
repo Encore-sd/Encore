@@ -14,14 +14,12 @@ CREATE TABLE IF NOT EXISTS users (
 	role VARCHAR(6) DEFAULT 'user'
 );
 
--- Create Memories Table (1-to-Many relationship with Users)[cite: 1]
+-- Create Memories Table (1-to-Many relationship with Users)
 CREATE TABLE IF NOT EXISTS memories (
     memoryid SERIAL PRIMARY KEY,
     userid INT NOT NULL,
     audiotranscription TEXT,
-    audiofilelocation VARCHAR(500),
     imagefilelocation VARCHAR(500),
-    keywords TEXT,
     gpslongitude NUMERIC(11, 8),
     gpslatitude NUMERIC(10, 8),
     timecaptured TIMESTAMP,

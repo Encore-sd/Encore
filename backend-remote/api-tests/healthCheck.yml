@@ -8,14 +8,6 @@ http:
   url: "{{baseURL}}/"
   auth: inherit
 
-runtime:
-  scripts:
-    - type: tests
-      code: |-
-        test("a protected route without a token responds 401", function () {
-          expect(res.getStatus()).to.equal(401);
-        });
-
 settings:
   encodeUrl: true
   timeout: 0

@@ -4,7 +4,7 @@ const authenticateToken = require('../middleware/auth');
 
 module.exports = (pool) => {
 
-	// Insert a single memorie's details without sending it to the AI
+	// Insert a single memory's details without sending it to the AI
 	router.put('/:userId', authenticateToken, async (req, res) => {
 		const requestedUserId = parseInt(req.params.userId, 10);
 		const authenticatedUserId = req.user.userId;
@@ -148,9 +148,10 @@ module.exports = (pool) => {
 
 	router.get('/:userId/:memoryId', authenticateToken, async (req, res) => {
 		const requestedUserId = parseInt(req.params.userId, 10);
+		const requestedMemoryId = parseInt(req.params.memoryId, 10);
 		const authenticatedUserId = req.user.userId;
 
-		if(isNaN(requestedUserId) || requestedUserId !== authenticatedUserId) {
+		if(isNaN(requestedUserId) || isNaN(requestedMemoryId) || requestedUserId !== authenticatedUserId) {
 			return res.status(403).json({
 				success: false,
 				message: 'Access denied.'
@@ -162,7 +163,7 @@ module.exports = (pool) => {
 				`SELECT memoryid, audiotranscription, imagefilelocation, gpslongitude, gpslatitude, timecaptured FROM memories
 				WHERE userid = $1 AND memoryid = $2
 				LIMIT 1`,
-				[requestedUserId, parseInt(req.params.memoryId, 10)]
+				[requestedUserId, requestedMemoryId]
 			);
 
 			if(memory.rows.length > 0){

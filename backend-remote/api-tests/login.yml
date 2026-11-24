@@ -19,8 +19,12 @@ runtime:
   scripts:
     - type: after-response
       code: |-
-        bru.setVar("token", res.getBody().token);
-        bru.setVar("userid", res.getBody().user.userId);
+        if(res.getBody().user.role === 'user'){
+          bru.setVar("token", res.getBody().token);
+          bru.setVar("userid", res.getBody().user.userId);
+        } else {
+          bru.setVar("aiToken", res.getBody().token);
+        }
 
 settings:
   encodeUrl: true
