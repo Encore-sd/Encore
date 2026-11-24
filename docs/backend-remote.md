@@ -237,6 +237,277 @@ Return on server error:
 		error: error.message  
 	}
 
+### PUT /memory/:userId
 
+Purpose: This endpoint will take in a user's id and memory details in the body and store that memory. This endpoint is good for storing memories that have already been analyzed by the AI, such as the user opts into remote storage but already has resolved memories from a past time they were already opted into remote storage
 
+Paramaters: None
+Body: audiotranscription, imagefilelocation, gpslongitude, gpslatitude, timecaptured, embedding
+
+Protected route: true
+
+Return on success:  
+	Status: 201  
+	{  
+		"success": true,
+		"message": "Memory inserted successfully.",
+		"memory": {
+		"memoryid": 3,
+		"userid": 1
+	}  
+
+Return on unathorized:  
+	Status: 403  
+	{  
+		"success": false,
+		"message": "Access denied."
+	}  
+
+Return on invalid memoryVectorEmbedding:  
+	Status: 400  
+	{  
+		success: false,
+		message: `Embedding must contain exactly ${vectorDim} dimensions (received ${embedding.length}).`
+	}
+
+Return on missing memoryVectorEmbedding:  
+	Status: 400  
+	{  
+		success: false,
+		message: `Embedding must be an array of ${vectorDim} numbers or a pgvector string.`
+	}
+
+Return on server error:  
+	Status: 500  
+	{  
+		success: false,  
+		message: 'Internal server error.',  
+		error: error.message  
+	}
+
+### GET /memory/:userId
+
+Purpose: This endpoint will take in the user's id and fetch paginated memories for that user.
+
+Paramaters: limit, offset
+Body: None
+
+Protected route: true
+
+Return on success:  
+	Status: 200  
+	{  
+		"success": true,
+		"memories": [],
+		"pagination": {
+			"limit": 20,
+			"offset": 0,
+			"currentPage": 1,
+			"totalItems": 0,
+			"totalPages": 0,
+			"hasNextPage": false,
+			"hasPreviousPage": false
+		}
+	}  
+
+Return on unathorized:  
+	Status: 403  
+	{  
+		"success": false,
+		"message": "Access denied."
+	}  
+
+Return on server error:  
+	Status: 500  
+	{  
+		success: false,  
+		message: 'Internal server error.',  
+		error: error.message  
+	}
+
+### GET /memory/:userId/:memoryId
+
+Purpose: This endpoint will take in the user's id and a memoryId and return details for that memory
+
+Paramaters: limit, offset
+Body: None
+
+Protected route: true
+
+Return on success:  
+	Status: 200  
+	{  
+		"success": true,
+		"memories": [],
+		"pagination": {
+			"limit": 20,
+			"offset": 0,
+			"currentPage": 1,
+			"totalItems": 0,
+			"totalPages": 0,
+			"hasNextPage": false,
+			"hasPreviousPage": false
+		}
+	}  
+
+Return on unathorized:  
+	Status: 403  
+	{  
+		"success": false,
+		"message": "Access denied."
+	}  
+
+Return on server error:  
+	Status: 500  
+	{  
+		success: false,  
+		message: 'Internal server error.',  
+		error: error.message  
+	}
+
+### DELETE /memory/:userId/:memoryId
+
+Purpose: This endpoint takes in a user's id and a memory id, then deletes that memory for the user
+
+Paramaters: None
+Body: None
+
+Protected route: true
+
+Return on success:  
+	Status: 200  
+	{  
+		"success": true,
+		"message": "Memory deleted successfully."
+	}  
+
+Return on unathorized:  
+	Status: 403  
+	{  
+		"success": false,
+		"message": "Access denied."
+	}  
+
+Return on server error:  
+	Status: 500  
+	{  
+		success: false,  
+		message: 'Internal server error.',  
+		error: error.message  
+	}
+
+### DELETE /account/:userId
+
+Purpose: This endpoint takes in a user's id and deletes all the users memories and their account
+
+Paramaters: None
+Body: None
+
+Protected route: true
+
+Return on success:  
+	Status: 200  
+	{  
+		success: true,
+		memories: deleteMemoryResult.rows,
+		userId: deleteUserResult.rows[0].userid,
+		message: 'account deleted successfully.'
+	}  
+
+Return on unathorized:  
+	Status: 403  
+	{  
+		"success": false,
+		"message": "Access denied."
+	}  
+
+Return on server error:  
+	Status: 500  
+	{  
+		success: false,  
+		message: 'Internal server error.',  
+		error: error.message  
+	}
+
+### POST /query/retriever/:userId
+
+Purpose: This endpoint takes in a user's id, a value of k, and a embedded vector
+
+Paramaters: None
+Body:  
+{  
+	"k": 1,  
+	"queryVector": [{array of x numbers}]  
+}  
+
+Protected route: true
+
+Return on success:  
+	Status: 200  
+	{  
+		"success": true,
+		"userId": 1,
+		"k": 1,
+		"count": 1,
+		"memories": [{
+			"memoryid": 1,
+			"userid": 1,
+			"audiotranscription": "Discussed Senior Design API routes and Docker setup.",
+			"imagefilelocation": "/uploads/memories/img_101.jpg",
+			"gpslongitude": "-81.20005600",
+			"gpslatitude": "28.60242700",
+			"timecaptured": "2026-11-23T17:30:00.000Z",
+			"distance": 0.9248846811386489
+		}]
+	}
+
+Return on user not found based on JWT:  
+	Status: 400  
+	{  
+		"success": false,
+		"message": "user not found."
+	}
+
+Return on unathorized due to not being called by our AI:  
+	Status: 403  
+	{  
+		"success": false,
+		"message": "Access denied, must be AI."
+	}  
+
+Return on requested user not found:  
+	Status: 404  
+	{  
+		success: false,
+		message: 'Invalid userId.'
+	}
+
+Return on invalid value of k:
+	Status: 400  
+	{  
+		success: false,
+		message: 'paramater k must be a positive integer.'
+	}
+
+Return on invalid queryVector:  
+	Status: 400  
+	{  
+		success: false,
+		message: `queryVector must be an array of ${vectorDim} finite numbers (received length ${queryVector.length}).`
+	}
+
+Return on missing queryVector:  
+	Status: 400  
+	{  
+		success: false,
+		message: `queryVector is required and must be ${vectorDim}-element number array.`	
+	}
+
+Return on server error:  
+	Status: 500  
+	{  
+		success: false,  
+		message: 'Internal server error.',  
+		error: error.message  
+	}
 

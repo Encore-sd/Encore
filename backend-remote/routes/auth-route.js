@@ -77,7 +77,7 @@ module.exports = (pool) => {
 			const newUserQuery = `
 				INSERT INTO users (firstname, lastname, email, password, verificationcode, isverified)
 				VALUES ($1, $2, $3, $4, $5, FALSE)
-				RETURNING userid, firstname, lastname, email, isverified;
+				RETURNING userid, firstname, lastname, email, isverified, role;
 			`;
 			const newUser = await pool.query(newUserQuery, [firstName, lastName, email, passwordHash, verificationCode]);
 
@@ -127,7 +127,7 @@ module.exports = (pool) => {
 				SET isverified = TRUE,
 				verificationcode = NULL
 				WHERE email = $1
-				RETURNING userid, email, isverified;
+				RETURNING userid, email, isverified, role;
 			`;
 			const updatedUser = await pool.query(updateQuery, [email])
 
@@ -194,7 +194,8 @@ module.exports = (pool) => {
 					firstName: user.firstname,
 					lastName: user.lastname,
 					email: user.email,
-					isVerified: user.isverified
+					isVerified: user.isverified,
+					role: user.role
 				}
 			});
 

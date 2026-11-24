@@ -39,6 +39,11 @@ app.use('/query', queryRouter);
 const memoryRouter = require('./routes/memory-route')(pool);
 app.use('/memory', memoryRouter);
 
+// Import and mount the account routes, passing the pool object
+// used to modify user acount (such as delete it)
+const accountRouter = require('./routes/account-route')(pool);
+app.use('/account', accountRouter);
+
 
 app.listen(PORT, () => {
 	console.log(`Remote backend is listening on port ${PORT}`);
