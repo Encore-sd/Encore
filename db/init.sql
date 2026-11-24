@@ -10,7 +10,8 @@ CREATE TABLE IF NOT EXISTS users (
     password VARCHAR(255) NOT NULL,
     isverified BOOLEAN DEFAULT FALSE,
     verificationcode VARCHAR(10),
-    createdate TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    createdate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	role VARCHAR(6) DEFAULT 'user'
 );
 
 -- Create Memories Table (1-to-Many relationship with Users)[cite: 1]
