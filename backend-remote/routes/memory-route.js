@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const authenticateToken = require('../middleware/auth');
 
+// The dimension that the memory vector is. Must match the dimension in the database
+const vectorDim = 768;
+
 module.exports = (pool) => {
 
 	// Insert a single memory's details without sending it to the AI
@@ -29,10 +32,10 @@ module.exports = (pool) => {
 		let formattedEmbedding = null;
 		if (embedding !== null && embedding !== undefined) {
 			if (Array.isArray(embedding)) {
-				if (embedding.length !== 768) {
+				if (embedding.length !== vectorDim) {
 					return res.status(400).json({
 						success: false,
-						message: `Embedding must contain exactly 768 dimensions (received ${embedding.length}).`
+						message: `Embedding must contain exactly ${vectorDim} dimensions (received ${embedding.length}).`
 					});
 				}
 				formattedEmbedding = `[${embedding.join(',')}]`;
@@ -41,7 +44,7 @@ module.exports = (pool) => {
 			} else {
 				return res.status(400).json({
 					success: false,
-					message: 'Embedding must be an array of 768 numbers or a pgvector string.'
+					message: `Embedding must be an array of ${vectorDim} numbers or a pgvector string.`
 				});
 			}
 		}

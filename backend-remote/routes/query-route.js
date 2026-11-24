@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const authenticateToken = require('../middleware/auth');
 
+// The dimension that the query vector is. Must match the dimension in the database
+const vectorDim = 768;
+
 module.exports = (pool) => {
 	router.post('/', authenticateToken, async (req, res) => {
 		const { query } = req.body;
@@ -79,12 +82,12 @@ module.exports = (pool) => {
 
 		if(Array.isArray(queryVector)) {
 			if (
-				queryVector.length !== 768 || 
+				queryVector.length !== vectorDim || 
 				!queryVector.every((val) => typeof val === 'number' && Number.isFinite(val))
 			) {
 				return res.status(400).json({
 					success: false,
-					message: `queryVector must be an array of 768 finite numbers (received length ${queryVector.length}).`
+					message: `queryVector must be an array of ${vectorDim} finite numbers (received length ${queryVector.length}).`
 				});
 			}
 			formattedVector = `[${queryVector.join(',')}]`;
@@ -93,7 +96,7 @@ module.exports = (pool) => {
 		} else {
 			return res.status(400).json({
 				success: false,
-				message: 'queryVector is required and must be 768-element number array.'
+				message: `queryVector is required and must be ${vectorDim}-element number array.`
 			});
 		}
 
