@@ -247,7 +247,7 @@ Body: audiotranscription, imagefilelocation, gpslongitude, gpslatitude, timecapt
 Protected route: true
 
 Return on success:  
-	Status: 200  
+	Status: 201  
 	{  
 		"success": true,
 		"message": "Memory inserted successfully.",
@@ -381,4 +381,38 @@ Return on server error:
 		message: 'Internal server error.',  
 		error: error.message  
 	}
+
+### DELETE /account/:userId
+
+Purpose: This endpoint takes in a user's id and deletes all the users memories and their account
+
+Paramaters: None
+Body: None
+
+Protected route: true
+
+Return on success:  
+	Status: 200  
+	{  
+		success: true,
+		memories: deleteMemoryResult.rows,
+		userId: deleteUserResult.rows[0].userid,
+		message: 'account deleted successfully.'
+	}  
+
+Return on unathorized:  
+	Status: 403  
+	{  
+		"success": false,
+		"message": "Access denied."
+	}  
+
+Return on server error:  
+	Status: 500  
+	{  
+		success: false,  
+		message: 'Internal server error.',  
+		error: error.message  
+	}
+
 

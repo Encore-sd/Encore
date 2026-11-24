@@ -23,5 +23,9 @@ module.exports = (pool) => {
 			return res.status(500).json({ success: false, message: 'Internal server error.', error: error.message });
 		}
 	});
+
+	router.post('/retriever', authenticateToken, async (req, res) => {
+	});
+
 	return router;
 };
