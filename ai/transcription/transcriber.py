@@ -10,20 +10,12 @@ TRANSCRIBE_MODEL = os.environ.get("TRANSCRIBE_MODEL", "openai/whisper-base.en")
 # loads whisper once, when this file is imported
 ASR = pipeline("automatic-speech-recognition", model=TRANSCRIBE_MODEL)
 
-try:
-    MODEL_IS_MULTILINGUAL:bool = os.environ.get("MODEL_IS_MULTILINGUAL", False)
-except ValueError as exception:
-    print(f'The .env value for MODEL_IS_MULTILINGUAL was entered incorrectly; Accepted values are "True" or "False"; False will be used until the server is launched with a valid .env value; The exception was reported as follows: {exception}')
-    MODEL_IS_MULTILINGUAL:bool = False
-
 # without these whisper makes up a sentence when the audio has no speech
 NO_SPEECH_SETTINGS = {
     "no_speech_threshold": 0.6,
     "logprob_threshold": -1.0,
     "compression_ratio_threshold": 1.35,
     "temperature": (0.0, 0.2, 0.4, 0.6, 0.8, 1.0),
-    "condition_on_prev_tokens": True,
-    "is_multilingual": MODEL_IS_MULTILINGUAL, 
 }
 
 
