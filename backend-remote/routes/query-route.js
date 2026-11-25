@@ -106,7 +106,7 @@ module.exports = (pool) => {
 				SELECT
 					memoryid,
 					userid,
-					audiotranscription,
+					memorytranscription,
 					imagefilelocation,
 					gpslongitude,
 					gpslatitude,

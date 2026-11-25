@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS memories (
     memoryid SERIAL PRIMARY KEY,
     userid INT NOT NULL,
-    audiotranscription TEXT,
+    memorytranscription TEXT,
     imagefilelocation VARCHAR(500),
     gpslongitude NUMERIC(11, 8),
     gpslatitude NUMERIC(10, 8),

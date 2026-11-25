@@ -20,7 +20,7 @@ module.exports = (pool) => {
 		}
 
 		const {
-			audiotranscription = null,
+			memorytranscription = null,
 			imagefilelocation = null,
 			gpslongitude = null,
 			gpslatitude = null,
@@ -53,7 +53,7 @@ module.exports = (pool) => {
 			const insertQuery = `
 				INSERT INTO memories (
 					userid,
-					audiotranscription,
+					memorytranscription,
 					imagefilelocation,
 					gpslongitude,
 					gpslatitude,
@@ -67,7 +67,7 @@ module.exports = (pool) => {
 
 			const values = [
 				requestedUserId,
-				audiotranscription,
+				memorytranscription,
 				imagefilelocation,
 				gpslongitude,
 				gpslatitude,
@@ -110,7 +110,7 @@ module.exports = (pool) => {
 		try {
 			const [memoriesResult, countResult] = await Promise.all([
 				pool.query(
-					`SELECT memoryid, audiotranscription, imagefilelocation FROM memories
+					`SELECT memoryid, memorytranscription, imagefilelocation FROM memories
 					WHERE userid = $1
 					ORDER BY timecaptured DESC
 					LIMIT $2 OFFSET $3`,
@@ -163,7 +163,7 @@ module.exports = (pool) => {
 
 		try {
 			const memory = await pool.query(
-				`SELECT memoryid, audiotranscription, imagefilelocation, gpslongitude, gpslatitude, timecaptured FROM memories
+				`SELECT memoryid, memorytranscription, imagefilelocation, gpslongitude, gpslatitude, timecaptured FROM memories
 				WHERE userid = $1 AND memoryid = $2
 				LIMIT 1`,
 				[requestedUserId, requestedMemoryId]
