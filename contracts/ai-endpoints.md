@@ -17,10 +17,8 @@ Form upload, field `file`: one complete audio file (wav, mp3, m4a, ogg, flac, we
 ```
 
 No speech: `transcript_string` is `""`, everything else is `null`. Times are seconds within the file.
-No connection to Embedding Model: `embedding` is `null`
 TypeSafeError(s) raised during Trigger Model classification: `keep` and `confidence` are `null`, `reason` contains the exception/type of error
-
-Errors: 415 not an audio file, 422 no `file` field.
+Errors: 415 not an audio file, 422 no `file` field, 503 embedding model unavailable (keep the file and send it again later).
 
 ## POST /retry_for_missing_info (backend → AI)
 ```json

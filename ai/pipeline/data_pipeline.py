@@ -35,11 +35,8 @@ def data_transport(audio):
         return
 
     # embed string first
-    try:
-        text_vector = text_embedder.embed_transcription(transcript_str)
-    except ConnectionError:
-        text_vector = None
-    
+    text_vector = text_embedder.embed_transcription(transcript_str)
+
     # check if its memorable
     try:
         cheap_classification = handle_classification(transcript_str)

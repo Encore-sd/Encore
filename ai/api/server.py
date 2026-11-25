@@ -4,6 +4,7 @@ from pipeline.data_pipeline import data_transport # imported module
 from pipeline.query_pipeline import query_transport  #imported module 
 from pipeline.missing_info_pipeline import missing_info_transport  # imported module
 from pydantic import BaseModel
+import requests
 
 app = FastAPI()
 locker = Lock()
@@ -66,6 +67,10 @@ def process_audio(file: UploadFile) -> AudioResult:
                     "reason" : cheap_classification_data["reason"], # reason from Jev Classifier, 6 labels
                     "embedding" : vector_data # large dimensional vector 
             }
+    # before ValueError: a bad JSON reply from the embedder is both, and it is not the caller's fault
+    except requests.RequestException:
+        # no embedding means no row, so the backend keeps the audio and sends it again later
+        raise HTTPException(503, "The embedding model is unavailable, send the file again later")
     except ValueError:
         raise HTTPException(415, "A complete audio file is required (wav, mp3, m4a, ogg, flac, webm, aiff)")
 
