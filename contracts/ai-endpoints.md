@@ -20,35 +20,6 @@ No speech: `transcript_string` is `""`, everything else is `null`. Times are sec
 TypeSafeError(s) raised during Trigger Model classification: `keep` and `confidence` are `null`, `reason` contains the exception/type of error
 Errors: 415 not an audio file, 422 no `file` field, 503 embedding model unavailable (keep the file and send it again later).
 
-## POST /retry_for_missing_info (backend → AI)
-```json
-{
-  "transcript_string": "text, or \"\" if no speech",
-  "start_time": 0.0,
-  "end_time": 6.4,
-  "keep": null,
-  "confidence": null,
-  "reason": "An Exception was encountered during Classification: POST https://api.typesafe.ai/v1/systemone: 401 Cannot authenticate with the server. Please check your API key and try again. (request_id=req_XXXXXXXXXXXXXXXXXXXXXXXXX)",
-  "embedding": null
-}
-```
-
-Returns a json dictionary in the same format as `/audio`'s output and it's own input. Returns input if no speech; Otherwise: if `keep` is `null`, runs through classification function to get missing trigger-model decision; if `embedding` is null, runs through embedding function to get embedding vector of transcription, then outputs the following:
-```json
-{
-  "transcript_string": "text, or \"\" if no speech",
-  "start_time": 0.0,
-  "end_time": 6.4,
-  "keep": true,
-  "confidence": 0.82,
-  "reason": "label",
-  "embedding": [768 numbers]
-}
-```
-Returns with the same caveats/formatting as `/audio` if it encounters errors along the way
-
-Errors: 400 if not in the shape of `/audio`'s response, 422 if input is not a json dictionary
-
 ## POST /query (backend → AI)
 
 ```json
